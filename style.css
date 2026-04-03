@@ -1,0 +1,451 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #fafafa;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+h1, h2, .logo {
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+}
+
+/* === NAVBAR (HEADER) === */
+header {
+    background-color: #c1272d; 
+    color: white;
+    padding: 1rem 2%; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo {
+    font-size: 2.5rem;
+    text-decoration: none;
+    color: white;
+    letter-spacing: 2px;
+}
+
+.nav-center, .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    transition: opacity 0.3s ease;
+}
+
+nav a:hover {
+    opacity: 0.8;
+}
+
+.btn-signup {
+    background-color: white;
+    color: #c1272d;
+    padding: 0.5rem 1.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: background-color 0.3s;
+}
+
+.btn-signup:hover {
+    background-color: #f0f0f0;
+}
+
+.lang-flag {
+    font-size: 1.5rem;
+}
+
+/* === HERO SECTION (La grande bannière avec recherche MERCI GEMINI) === */
+.hero {
+    /* Effet Tartan tissé basé sur ta nouvelle image */
+    background-color: #d12836; /* Rouge vif de base */
+    background-image: 
+        /* 1. TOP : Bandes horizontales (assombrit une ligne sur deux) */
+        repeating-linear-gradient(
+            0deg, 
+            transparent 0px, 
+            transparent 60px, 
+            rgba(0, 0, 0, 0.3) 60px, 
+            rgba(0, 0, 0, 0.3) 120px
+        ),
+        /* 2. MIDDLE : Bandes verticales (éclaircit une colonne sur deux) */
+        repeating-linear-gradient(
+            90deg, 
+            transparent 0px, 
+            transparent 60px, 
+            rgba(255, 255, 255, 0.25) 60px, 
+            rgba(255, 255, 255, 0.25) 120px
+        ),
+        /* 3. BOTTOM : Diagonales (Violet foncé et transparent pour laisser passer le rouge) */
+        repeating-linear-gradient(
+            135deg, 
+            #4a1c35 0px, 
+            #4a1c35 15px, 
+            transparent 15px, 
+            transparent 30px
+        );
+    color: white;
+    text-align: center;
+    padding: 8rem 2%; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); 
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    font-weight: 300;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5); 
+}
+
+/* Barre de recherche */
+.search-bar {
+    display: flex;
+    width: 100%;
+    max-width: 800px;
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.search-bar input {
+    flex-grow: 1;
+    padding: 1.2rem;
+    border: none;
+    outline: none;
+    font-size: 1.1rem;
+    font-family: inherit;
+}
+
+.search-bar button {
+    background-color: #c1272d;
+    color: white;
+    border: none;
+    padding: 0 2.5rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-bar button:hover {
+    background-color: #a01f24;
+}
+
+/* === SECTION DESTINATIONS === */
+.destinations {
+    padding: 4rem 2%; 
+    max-width: 100%;
+    margin: 0 auto;
+    flex-grow: 1; 
+}
+
+.destinations h2 {
+    font-size: 2.2rem;
+    color: #444;
+    margin-bottom: 0.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.destinations > p {
+    color: #777;
+    margin-bottom: 3rem;
+    font-size: 1.1rem;
+}
+
+/* La Grille (Grid) explicite pour les cartes */
+.grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(1, 1fr); 
+}
+
+@media (min-width: 650px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 950px) {
+    .grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1200px) {
+    .grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.card {
+    background: #f1ebd8; 
+    padding: 15px; 
+    border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-width: 0; 
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.card img {
+    width: 100%;
+    aspect-ratio: 1 / 1; 
+    object-fit: cover;
+    display: block; 
+    background-color: #e2dac0; 
+    border-radius: 4px;
+}
+
+.card-content {
+    padding-top: 1.5rem;
+    background-color: transparent; 
+}
+
+.card-content h3 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+    color: #333;
+}
+
+.card-content p {
+    color: #888;
+    font-size: 0.95rem;
+    font-weight: 300;
+}
+
+/* === PROMO SECTION (Travel More) === */
+.promo-section {
+    padding: 3rem 0; 
+    width: 100%;
+}
+
+.promo-title {
+    text-align: left; 
+    padding: 0 2%;
+    font-size: 2.2rem;
+    color: #444;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.promo-img-full {
+    padding: 0 2%;
+    width: 100%; 
+    max-height: 450px; 
+    object-fit: cover; 
+    display: block; 
+    margin-bottom: 1.5rem;
+    border-radius: 4px;
+}
+
+.promo-text {
+    text-align: left;
+    padding: 0 2%; 
+    font-family: 'Playfair Display', serif;
+    color: #333;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* === REVIEWS SECTION === */
+.reviews-section {
+    padding: 2rem 2% 4rem 2%;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.reviews-section h2 {
+    font-size: 2.2rem;
+    color: #444;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.reviews-subtitle {
+    font-family: 'Playfair Display', serif;
+    color: #333;
+    font-size: 1.1rem;
+    margin-bottom: 3rem;
+}
+
+.reviews-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(1, 1fr);
+}
+
+/* Reprise de ta logique responsive pour faire 3 colonnes sur PC */
+@media (min-width: 800px) {
+    .reviews-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.review-card {
+    background: #ffffff;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.review-header img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #ddd; 
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-info .username {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.user-info .role {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.85rem;
+    color: #999;
+}
+
+.review-card h3 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    font-size: 1.3rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.review-card .review-text {
+    font-family: 'Playfair Display', serif;
+    color: #777;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+.review-card .review-text strong {
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* === FOOTER === */
+footer {
+    background-color: #222;
+    color: #ccc;
+    padding: 3rem 2% 1rem 2%; 
+    margin-top: auto; 
+}
+
+.footer-content {
+    max-width: 100%;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.footer-col h4 {
+    color: white;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col ul li {
+    margin-bottom: 0.5rem;
+}
+
+.footer-col ul li a {
+    color: #ccc;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-col ul li a:hover {
+    color: white;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid #444;
+    font-size: 0.9rem;
+}
+
+/* === RESPONSIVE DESIGN === */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    .nav-center {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .nav-right {
+        width: 100%;
+        justify-content: center;
+    }
+    .hero h1 {
+        font-size: 2rem;
+    }
+    .search-bar {
+        flex-direction: column;
+    }
+    .search-bar button {
+        padding: 1rem;
+    }
+}

@@ -566,12 +566,12 @@ footer {
 /* === HOUSING PAGE LAYOUT === */
 .booking-container {
     display: flex;
-    max-width: 1500px; /* On élargit pour laisser de la place à la carte */
+    max-width: 100%; /* <-- C'est LA ligne qui libère la largeur */
     margin: 2rem auto;
     gap: 2rem;
-    padding: 0 2%;
+    padding: 0 2%;   /* Garde un petit espace esthétique sur les bords */
     flex-grow: 1;
-    align-items: flex-start; /* Empêche les colonnes de s'étirer en hauteur */
+    align-items: flex-start;
 }
 
 /* Sidebar Filtres (Tiers 1) */
@@ -745,7 +745,8 @@ footer {
 
 /* === MAP SECTION (Tiers 3) === */
 .map-section {
-    width: 35%; 
+    width: 40%; /* Tu peux jouer entre 30% et 40% selon tes préférences */
+    max-width: 800px; /* Optionnel : empêche la carte de devenir gigantesque sur un écran géant */
     min-width: 300px;
     flex-shrink: 0;
     height: calc(100vh - 120px); 
@@ -755,7 +756,6 @@ footer {
     overflow: hidden;
     border: 1px solid #ddd;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    /* NOUVEAU : Transforme la section en conteneur Flex */
     display: flex; 
 }
 
@@ -1128,6 +1128,146 @@ footer {
     text-decoration: underline;
 }
 
+/* ========================================= */
+/* === USER DASHBOARD STYLES =============== */
+/* ========================================= */
+
+.dashboard-wrapper {
+    max-width: 1200px;
+    margin: 3rem auto;
+    padding: 0 2%;
+    width: 100%;
+    flex-grow: 1;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* 1 colonne sur mobile */
+    gap: 2rem;
+    align-items: start;
+}
+
+/* Passage à 2 colonnes sur écran PC (800px et +) */
+@media (min-width: 800px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .col-span-2 {
+        grid-column: 1 / -1; /* Prend toute la largeur */
+    }
+}
+
+.dashboard-card {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid #eaeaea;
+    height: 100%;
+}
+
+.dashboard-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #c1272d;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.5rem;
+}
+
+/* Harmonisation des inputs et selects pour qu'ils aient la même épaisseur */
+.dashboard-card input[type="text"],
+.dashboard-card input[type="email"],
+.dashboard-card input[type="tel"],
+.dashboard-card input[type="password"],
+.dashboard-card select {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+    background-color: #fafafa;
+    margin-bottom: 1.2rem;
+    transition: border-color 0.3s;
+    box-sizing: border-box; /* Crucial pour que le padding ne dépasse pas */
+}
+
+.dashboard-card input:focus, 
+.dashboard-card select:focus {
+    outline: none;
+    border-color: #c1272d;
+    background-color: #fff;
+}
+
+/* Style propre pour les Checkboxes */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.8rem;
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #c1272d;
+}
+
+.checkbox-group label {
+    font-size: 1rem;
+    color: #444;
+    cursor: pointer;
+}
+
+/* Boutons stylisés */
+.btn-dashboard {
+    background-color: #c1272d;
+    color: white;
+    border: none;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+    text-align: center;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.btn-dashboard:hover {
+    background-color: #a01f24;
+}
+
+.btn-stripe {
+    background-color: #6772e5; /* Violet Stripe */
+}
+
+.btn-stripe:hover {
+    background-color: #5469d4;
+}
+
+.btn-danger {
+    background-color: transparent;
+    color: #c1272d;
+    border: 2px solid #c1272d;
+}
+
+.btn-danger:hover {
+    background-color: #fff5f5;
+}
+
+@media (min-width: 600px) {
+    .danger-zone {
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
+    }
+}
 /* Sur les grands écrans, on met tout sur une seule ligne */
 @media (min-width: 768px) {
     .cookie-banner {

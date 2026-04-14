@@ -1,150 +1,115 @@
 <?php 
+session_start();
+require_once __DIR__ . '/../config/db_connect.php';
+
+$lang = $_SESSION['language'] ?? 'fr';
+
+// --- RÉCUPÉRATION DES DESTINATIONS DEPUIS LA BDD ---
+$destQuery = $pdo->prepare("
+    SELECT d.destination_id, d.image_url, dt.name, 
+           COALESCE(dt.slogan, (SELECT slogan FROM destination_translation WHERE destination_id = d.destination_id AND language_code = 'en')) as slogan
+    FROM destination d
+    JOIN destination_translation dt ON d.destination_id = dt.destination_id
+    WHERE dt.language_code = :lang
+    LIMIT 6
+");
+$destQuery->execute(['lang' => $lang]);
+$destinations = $destQuery->fetchAll();
+
+// --- RÉCUPÉRATION DES AVIS ---
+$reviewQuery = $pdo->prepare("
+    SELECT r.*, u.name as username, u.role 
+    FROM review r
+    JOIN user u ON r.user_id = u.user_id
+    WHERE r.status = 'published'
+    ORDER BY r.created_at DESC
+    LIMIT 3
+");
+$reviewQuery->execute();
+$reviews = $reviewQuery->fetchAll();
+
 $page_title = 'Momo - Book your next journey'; 
-$page_description = 'Find housing, tours, and more for your next destination with Momo Travel.';
+
+// Petite logique de traduction pour le bouton
+$explore_text = ($lang == 'fr') ? "Explorer les séjours" : "Explore stays";
+$our_dest_text = ($lang == 'fr') ? "Nos destinations" : "Our destinations";
+// =========================================================================
+// 2. RÉCUPÉRATION DES DONNÉES ET TRADUCTIONS
+// =========================================================================
+
+$lang = $_SESSION['language'] ?? 'fr';
+
+$translations = [
+    'fr' => [
+        'hero_title' => "Réservez votre prochain voyage",
+        'hero_subtitle' => "Trouvez un logement, des visites et bien plus encore pour votre destination suivante",
+        'search_btn' => "Rechercher",
+        'reviews_subtitle' => "Parcourez les avis de nos clients",
+        'reviews_title' => "Avis",
+    ],
+    'en' => [
+        'hero_title' => "Book your next journey",
+        'hero_subtitle' => "Find housing, tours, and more for your next destination",
+        'search_btn' => "Search",
+        'reviews_subtitle' => "Browse through our clients’ feedback",
+        'reviews_title' => "Reviews",
+    ]
+];
+$t = $translations[$lang];
+
 include 'header.php'; 
 ?>
 
 <section class="hero">
-    <h1>Book your next journey</h1>
-    <p>Find housing, tours, and more for your next destination</p>
+    <h1><?= $translations[$lang]['hero_title'] ?></h1>
+    <p><?= $translations[$lang]['hero_subtitle'] ?></p>
     
-    <div class="search-bar">
-        <input type="text" aria-label="Destination" placeholder="City, hotel, neighborhood...">
-        <input type="date" aria-label="Travel dates" style="border-left: 1px solid #ddd; flex-grow: 0.5;">
-        <button>Search</button>
-    </div>
+    <form action="book" method="GET" class="search-bar">
+        <input type="text" name="city" placeholder="City, hotel, neighborhood...">
+        <!-- <input type="date" name="date" style="border-left: 1px solid #ddd; flex-grow: 0.5;"> -->
+        <button type="submit"><?= $translations[$lang]['search_btn'] ?></button>
+    </form>
 </section>
 
 <main class="destinations">
     <h2>Destinations</h2>
-    <p>Most popular destinations</p>
+    <p><?= $our_dest_text ?></p>
 
     <div class="grid">
-        <!-- Carte 1 -->
-        <article class="card">
-            <img src="images/destinations/Paris/Paris.webp" alt="Paris Tour Eiffel" fetchpriority="high">
-            <div class="card-content">
-                <h3>Paris</h3>
-                <p>Want to see la vie en Rose?</p>
-            </div>
-        </article>
-
-        <!-- Carte 2 -->
-        <article class="card">
-            <img src="images/destinations/New York/NYC.webp" alt="New York" fetchpriority="high">
-            <div class="card-content">
-                <h3>New York</h3>
-                <p>Take a bite of the Big Apple</p>
-            </div>
-        </article>
-
-        <!-- Carte 3 -->
-        <article class="card">
-            <img src="images/destinations/Tokyo/Tokyo.webp" alt="Tokyo" fetchpriority="high">
-            <div class="card-content">
-                <h3>Tokyo</h3>
-                <p>Chase the cherry blossoms</p>
-            </div>
-        </article>
-
-        <!-- Carte 4 -->
-        <article class="card">
-            <img src="images/destinations/Londres/London.webp" alt="London" fetchpriority="high">
-            <div class="card-content">
-                <h3>London</h3>
-                <p>Keep calm and visit London</p>
-            </div>
-        </article>
-
-        <!-- Carte 5 -->
-        <article class="card">
-            <img src="images/destinations/Cairo/Cairo.webp" alt="Cairo" fetchpriority="high">
-            <div class="card-content">
-                <h3>Cairo</h3>
-                <p>Walk among the pharaohs</p>
-            </div>
-        </article>
-
-        <!-- Carte 6 -->
-        <article class="card">
-            <img src="images/destinations/Honkong/Hongkong.webp" alt="Hong Kong" fetchpriority="high">
-            <div class="card-content">
-                <h3>Hong Kong</h3>
-                <p>Wander in the streets that inspired Wong Kar Wai</p>
-            </div>
-        </article>
+        <?php foreach($destinations as $dest): ?>
+            <article class="card">
+                <img src="<?= htmlspecialchars($dest['image_url'] ?? 'images/destinations/default.webp', ENT_QUOTES, 'UTF-8') ?>" 
+                     alt="<?= htmlspecialchars($dest['name'], ENT_QUOTES, 'UTF-8') ?>" 
+                     fetchpriority="high">
+                
+                <div class="card-content">
+                    <h3><?= htmlspecialchars($dest['name'], ENT_QUOTES, 'UTF-8') ?></h3>
+                    <p><?= htmlspecialchars($dest['slogan'] ?? '', ENT_QUOTES, 'UTF-8') ?></p>
+                    <p style="margin-top: 10px;">
+                        <a href="book?city=<?= urlencode($dest['name']) ?>" class="read-more" style="font-size: 0.9rem;">
+                            <?= $explore_text ?> &rarr;
+                        </a>
+                    </p>
+                </div>
+            </article>
+        <?php endforeach; ?>
     </div>
 </main>
 
-<!--Travel more while spending less-->
-<section class="promo-section">
-    <h2 class="promo-title">Travel more while spending less</h2>
-    
-    <img src="images/other/Airplane.webp" alt="Airplane flying" class="promo-img-full">
-    
-    <p class="promo-text">
-        Tired of always missing discounts?<br>
-        Discover our tips to save money on your flight tickets, housing, activities and more in our blog section.
-    </p>
-</section>
-
-<!-- Reviews -->
 <section class="reviews-section">
-    <h2>Reviews</h2>
-    <p class="reviews-subtitle">Browse through our clients’ feedback on their trips with us</p>
-
+    <h2><?= $translations[$lang]['reviews_title'] ?></h2>
+    <p class="reviews-subtitle"><?= $translations[$lang]['reviews_subtitle'] ?></p>
     <div class="reviews-grid">
-
-        <!-- Review cards ( modifier quand on passera de statique a non statique) -->
-        <article class="review-card">
-            <div class="review-header">
+        <?php foreach($reviews as $rev): ?>
+            <article class="review-card">
                 <div class="user-info">
-                    <span class="username">travel_lover123</span>
-                    <span class="role">user</span>
+                    <span class="username"><?= htmlspecialchars($rev['username'], ENT_QUOTES, 'UTF-8') ?></span>
                 </div>
-            </div>
-            <h3>“So much smoother”</h3>
-            <p class="review-text">
-                I tried several travel agencies and this one does not compare. Momo makes planning a trip truly enjoyable, th <strong>(read more)</strong>
-            </p>
-        </article>
-
-        <article class="review-card">
-            <div class="review-header">
-                <div class="user-info">
-                    <span class="username">abitrip_7</span>
-                    <span class="role">user</span>
-                </div>
-            </div>
-            <h3>“What a blast”</h3>
-            <p class="review-text">
-                I am beyond amazed. Absolutely everything was taken care of. The services are so great it makes you want to enco <strong>(read more)</strong>
-            </p>
-        </article>
-
-        <article class="review-card">
-            <div class="review-header">
-                <div class="user-info">
-                    <span class="username">fromearth903</span>
-                    <span class="role">user</span>
-                </div>
-            </div>
-            <h3>“I loved the experience”</h3>
-            <p class="review-text">
-                I went to Cairo with my friends using Momo. Such a lovely experience. We really benefited from all the ti <strong>(read more)</strong>
-            </p>
-        </article>
+                <h3>“<?= htmlspecialchars($rev['title'], ENT_QUOTES, 'UTF-8') ?>”</h3>
+                <p class="review-text"><?= htmlspecialchars($rev['comment'], ENT_QUOTES, 'UTF-8') ?></p>
+            </article>
+        <?php endforeach; ?>
     </div>
 </section>
 
-<div id="cookie-banner" class="cookie-banner">
-    <p>We use cookies to improve your experience on Momo Travel. Do you accept them? 🍪</p>
-    <div class="cookie-buttons">
-        <button id="accept-cookies" class="btn-accept">Accept</button>
-        <button id="decline-cookies" class="btn-decline">Decline</button>
-    </div>
-</div>
-
-<?php 
-include 'footer.php'; 
-?>
+<?php include 'footer.php'; ?>

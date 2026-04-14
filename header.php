@@ -34,7 +34,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="user_page" style="margin-right: 15px; color: inherit; text-decoration: none; font-weight: 500;">
-                        👤 <?= htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8') ?>
+                        <?= htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8') ?>
                     </a>
                 <?php else: ?>
                     <a href="auth" class="btn-signup">Sign up</a>

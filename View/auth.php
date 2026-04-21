@@ -10,7 +10,7 @@ session_start();
 $page_title = 'Momo - Connexion & Inscription';
 include '../header.php';
 $_SESSION['step']=1;
-$_SESSION['email'] = '';
+$_POST['email']='';
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -38,7 +38,7 @@ if (empty($_SESSION['csrf_token'])) {
 
                 <form class="contact-form" method="POST" action="auth.php">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                    <input type="email" name="email" placeholder="Votre adresse e-mail" required value="<?= htmlspecialchars($_SESSION['email'], ENT_QUOTES, 'UTF-8') ?>" autofocus style="width: 100%;">
+                    <input type="email" name="email" placeholder="Votre adresse e-mail" required value="<?= htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8') ?>" autofocus style="width: 100%;">
                     <button type="submit" name="email_check" id="btn-submit" style="width: 100%;">Continuer</button>
                 </form>
 
@@ -51,12 +51,12 @@ if (empty($_SESSION['csrf_token'])) {
             <?php elseif ($_SESSION['step'] === 2): ?>
                 <div class="contact-header" style="text-align: center; margin-bottom: 2rem;">
                     <h2>Bon retour !</h2>
-                    <p>Saisissez votre mot de passe pour le compte<br><strong><?= htmlspecialchars($_SESSION['email'], ENT_QUOTES, 'UTF-8') ?></strong></p>
+                    <p>Saisissez votre mot de passe pour le compte<br><strong><?= htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8') ?></strong></p>
                 </div>
 
                 <form class="contact-form" method="POST" action="auth.php">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                    <input type="hidden" name="email" value="<?= htmlspecialchars($_SESSION['email'], ENT_QUOTES, 'UTF-8') ?>">
+                    <input type="hidden" name="email" value="<?= htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8') ?>">
 
                     <div style="position: relative; width: 100%; margin-bottom: 1rem;">
                         <input type="password" name="password" id="login_pwd" placeholder="Mot de passe" required autofocus style="width: 100%; padding-right: 40px; margin-bottom: 0;">
@@ -77,12 +77,12 @@ if (empty($_SESSION['csrf_token'])) {
             <?php elseif ($_SESSION['step'] === 3): ?>
                 <div class="contact-header" style="text-align: center; margin-bottom: 2rem;">
                     <h2>Créer un compte</h2>
-                    <p>Complétez vos informations pour finaliser l'inscription de<br><strong><?= htmlspecialchars($_SESSION['email'], ENT_QUOTES, 'UTF-8') ?></strong></p>
+                    <p>Complétez vos informations pour finaliser l'inscription de<br><strong><?= htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8') ?></strong></p>
                 </div>
 
                 <form class="contact-form" method="POST" action="auth.php">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                    <input type="hidden" name="email" value="<?= htmlspecialchars($_SESSION['email'], ENT_QUOTES, 'UTF-8') ?>">
+                    <input type="hidden" name="email" value="<?= htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8') ?>">
 
                     <input type="text" name="name" placeholder="Prénom et Nom" required autofocus style="width: 100%;">
                     <input type="tel" name="phone_number" placeholder="Téléphone (optionnel)" style="width: 100%;">

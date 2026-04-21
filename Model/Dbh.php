@@ -10,7 +10,7 @@ class Dbh
     PDO::ATTR_EMULATE_PREPARES   => false,]   ;               // Améliore la sécurité des requêtes préparées
 
 
-    protected function connect()
+    public function connect()
     {
         try {
             $dsn = "mysql:host=$this->host;dbname=$this->db;charset=$this->charset";

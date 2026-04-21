@@ -10,7 +10,8 @@ require_once __DIR__ . '/../config/Dbh.php';
 $_SESSION['step'] = 1;
 $_SESSION['email'] = '';
 $error_message = '';
-$pdo = new Dbh();
+$dbh = new Dbh();
+$pdo = $dbh->connect();
 
 // 🛡️ SÉCURITÉ CSRF : Génération d'un token unique pour la session
 

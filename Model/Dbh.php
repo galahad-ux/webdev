@@ -1,10 +1,10 @@
 <?php
 class Dbh
 {
-    private $host = 'mysql-momo-vacation.alwaysdata.net';
-    private $db   = 'momo-vacation_bdd';
-    private $user = 'momo-vacation_website';
-    private $pass = 'FhR^?emJ8h4xzF]c?NCDE]j0@8QC:RJqvN3.rB;NsrBE]a<43R1BAuR@uBGB*K@H';
+    private $host = 'localhost';
+    private $db   = 'testlarrY';
+    private $user = 'root';
+    private $pass = '';
     private $charset = 'utf8mb4'; // Recommandé pour gérer correctement tous les caractères (accents, emojis...)
     private $options = [PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,       // Retourne les résultats sous forme de tableau associatif
     PDO::ATTR_EMULATE_PREPARES   => false,]   ;               // Améliore la sécurité des requêtes préparées

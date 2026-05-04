@@ -4,7 +4,7 @@
 // Aucune balise HTML ne doit se trouver dans cette zone.
 // =========================================================================
 
-require_once __DIR__ . '/../config/Dbh.php';
+require_once '../Model/Dbh.php';
 
 // Initialisation des variables par défaut
 $_SESSION['step'] = 1;
@@ -45,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ==========================================
     if (isset($_POST['email_check'])) {
         $email = trim($_POST['email']);
+        $_SESSION['step'] = 2;
 
 
     }
@@ -52,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ==========================================
     // ÉTAPE 2 : CONNEXION (LOGIN)
     // ==========================================
-    elseif (isset($_POST['login_submit'])) {
+    elseif (isset($_POST['email'])) {
         $email = trim($_POST['email']);
         $password = $_POST['password'];
 

@@ -9,8 +9,9 @@ session_start();
 
 $page_title = 'Momo - Connexion & Inscription';
 include '../header.php';
-$_SESSION['step']=1;
-$_POST['email']='';
+require_once '..\Controller\AuthController.php';
+
+$email='';
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -38,8 +39,8 @@ if (empty($_SESSION['csrf_token'])) {
 
                 <form class="contact-form" method="POST" action="auth.php">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                    <input type="email" name="email" placeholder="Votre adresse e-mail" required value="<?= htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8') ?>" autofocus style="width: 100%;">
-                    <button type="submit" name="email_check" id="btn-submit" style="width: 100%;">Continuer</button>
+                    <input type="email" name="email" placeholder="Votre adresse e-mail" required value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>" autofocus style="width: 100%;">
+                    <button type="submit" name='email_check' id="btn-submit" style="width: 100%;">Continuer</button>
                 </form>
 
                 <div style="text-align: center; margin: 20px 0; color: #777;"><span>Ou</span></div>

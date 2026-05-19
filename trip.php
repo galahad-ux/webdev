@@ -116,8 +116,8 @@ include 'header.php';
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-    .trip-detail-container { max-width: 1100px; margin: 3rem auto; padding: 0 2%; flex-grow: 1; }
-    .trip-hero-img { width: 100%; height: 420px; object-fit: cover; border-radius: 10px; margin-bottom: 2rem; }
+    .trip-detail-container { max-width: 1100px; margin: 3rem auto; padding: 0 4%; flex-grow: 1; box-sizing: border-box; }
+    .trip-hero-img { width: 100%; height: 420px; object-fit: cover; border-radius: 10px; margin-bottom: 2rem; display: block; }
     .trip-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
     .trip-badge { background: #f0f0f0; border-radius: 20px; padding: 0.3rem 0.9rem; font-size: 0.85rem; color: #444; }
     .trip-badge.agency { background: #fff3cd; color: #856404; }
@@ -129,10 +129,11 @@ include 'header.php';
     .inclusion-name { font-weight: 600; }
     .inclusion-desc { color: #666; font-size: 0.85rem; margin-top: 0.1rem; }
     .inclusion-limit { font-size: 0.8rem; color: #c1272d; white-space: nowrap; margin-left: 1rem; }
-    .dates-table { width: 100%; border-collapse: collapse; }
-    .dates-table th { text-align: left; padding: 0.8rem; background: #f9f9f9; font-size: 0.9rem; color: #555; font-weight: 600; border-bottom: 2px solid #eee; }
-    .dates-table td { padding: 0.8rem; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; vertical-align: middle; }
+    .dates-table { width: 100%; border-collapse: collapse; min-width: 520px; }
+    .dates-table th { text-align: left; padding: 0.8rem; background: #f9f9f9; font-size: 0.9rem; color: #555; font-weight: 600; border-bottom: 2px solid #eee; white-space: nowrap; }
+    .dates-table td { padding: 0.8rem; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; vertical-align: middle; white-space: nowrap; }
     .dates-table tr:hover td { background: #fafafa; }
+    .dates-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 4px; }
     .spots-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
     .spots-ok { background: #e6f4ea; color: #1e8e3e; }
     .spots-low { background: #fff3cd; color: #856404; }
@@ -140,8 +141,90 @@ include 'header.php';
     .btn-reserve { background: #c1272d; color: #fff; border: none; padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9rem; text-decoration: none; display: inline-block; }
     .btn-reserve:hover { background: #a01f24; }
     .btn-reserve[disabled], .btn-reserve.disabled { background: #ccc; cursor: not-allowed; pointer-events: none; }
-    .section-box { background: #fff; border: 1px solid #eaeaea; border-radius: 8px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-    #mini-map { height: 220px; border-radius: 8px; }
+    .section-box { background: #fff; border: 1px solid #eaeaea; border-radius: 8px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); box-sizing: border-box; }
+
+    /* Two-column grid : inclusions + map */
+    .trip-content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Map container */
+    .map-section-box {
+        background: #fff;
+        border: 1px solid #eaeaea;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        min-height: 280px;
+        margin-bottom: 2rem;
+    }
+
+    #mini-map {
+        width: 100%;
+        height: 100%;
+        min-height: 280px;
+        display: block;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+        .trip-detail-container { margin: 1.5rem auto; padding: 0 5%; }
+
+        .trip-hero-img { height: 220px; border-radius: 8px; margin-bottom: 1.2rem; }
+
+        .trip-content-grid {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .map-section-box { min-height: 240px; }
+        #mini-map { min-height: 240px; }
+
+        .section-box { padding: 1.2rem; }
+
+        /* Inclusions : limite participants passe à la ligne */
+        .inclusion-list li { flex-direction: column; align-items: flex-start; }
+        .inclusion-limit { margin-left: 0; margin-top: 0.35rem; }
+
+        /* Table dates : layout en carte, 2 lignes par date */
+        .dates-scroll { overflow-x: visible; border: none; }
+        .dates-table { min-width: unset; }
+        .dates-table thead { display: none; }
+        .dates-table tbody tr {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .dates-table tbody tr:last-child { border-bottom: none; }
+        .dates-table td {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.2rem 0.5rem 0.2rem 0;
+            border-bottom: none;
+            font-size: 0.88rem;
+            white-space: nowrap;
+        }
+        /* Spots + bouton : forcés à la ligne suivante */
+        .dates-table td:nth-child(5),
+        .dates-table td:nth-child(6) {
+            width: 100%;
+            padding-top: 0.5rem;
+        }
+        .dates-table td:nth-child(5) { padding-right: 0.75rem; width: auto; }
+        .dates-table td:nth-child(6) { width: auto; }
+        /* Séparateur visuel avant la 2e ligne */
+        .dates-table td:nth-child(5) { padding-left: 0; }
+    }
+
+    @media (max-width: 480px) {
+        .trip-hero-img { height: 180px; }
+        .map-section-box, #mini-map { min-height: 200px; }
+    }
 </style>
 
 <div class="trip-detail-container">
@@ -175,7 +258,7 @@ include 'header.php';
     </div>
     <?php endif; ?>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+    <div class="trip-content-grid">
 
         <!-- Inclusions -->
         <div class="section-box">
@@ -208,7 +291,7 @@ include 'header.php';
         </div>
 
         <!-- Mini map -->
-        <div class="section-box" style="padding: 0; overflow: hidden;">
+        <div class="map-section-box">
             <div id="mini-map"></div>
         </div>
     </div>
@@ -222,7 +305,7 @@ include 'header.php';
         <?php if (empty($dates)): ?>
             <p style="color:#888;"><?= $t['no_dates'] ?></p>
         <?php else: ?>
-        <div style="overflow-x:auto;">
+        <div class="dates-scroll">
             <table class="dates-table">
                 <thead>
                     <tr>
@@ -266,11 +349,24 @@ include 'header.php';
 </div>
 
 <script>
-var lat = <?= (float)($package['latitude'] ?? 48.8566) ?>;
-var lng = <?= (float)($package['longitude'] ?? 2.3522) ?>;
-var miniMap = L.map('mini-map').setView([lat, lng], 10);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19, attribution: '© OpenStreetMap'}).addTo(miniMap);
-L.marker([lat, lng]).addTo(miniMap).bindPopup('<?= addslashes(htmlspecialchars($package['city_name'] ?? '', ENT_QUOTES, 'UTF-8')) ?>').openPopup();
+(function () {
+    var lat = <?= (float)($package['latitude'] ?? 48.8566) ?>;
+    var lng = <?= (float)($package['longitude'] ?? 2.3522) ?>;
+    var miniMap = L.map('mini-map', { scrollWheelZoom: false }).setView([lat, lng], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(miniMap);
+    L.marker([lat, lng]).addTo(miniMap)
+     .bindPopup('<?= addslashes(htmlspecialchars($package['city_name'] ?? '', ENT_QUOTES, 'UTF-8')) ?>')
+     .openPopup();
+
+    // Force Leaflet à recalculer la taille du container après le rendu de la page
+    setTimeout(function () { miniMap.invalidateSize(); }, 100);
+
+    // Recalcule aussi si la fenêtre est redimensionnée (rotation mobile)
+    window.addEventListener('resize', function () { miniMap.invalidateSize(); });
+}());
 </script>
 
 <?php include 'footer.php'; ?>

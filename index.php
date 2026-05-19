@@ -45,6 +45,7 @@ $translations = [
         'search_btn' => "Rechercher",
         'reviews_subtitle' => "Parcourez les avis de nos clients",
         'reviews_title' => "Avis",
+        'city_placeholder' => "Ville, hôtel, quartier..."
     ],
     'en' => [
         'hero_title' => "Book your next journey",
@@ -52,6 +53,7 @@ $translations = [
         'search_btn' => "Search",
         'reviews_subtitle' => "Browse through our clients’ feedback",
         'reviews_title' => "Reviews",
+        'city_placeholder' => "City, hotel, neighborhood...",
     ]
 ];
 $t = $translations[$lang];
@@ -64,7 +66,7 @@ include 'header.php';
     <p><?= $translations[$lang]['hero_subtitle'] ?></p>
     
     <form action="book" method="GET" class="search-bar">
-        <input type="text" name="city" placeholder="City, hotel, neighborhood...">
+        <input type="text" name="city" placeholder="<?= $translations[$lang]['city_placeholder'] ?>">
         <!-- <input type="date" name="date" style="border-left: 1px solid #ddd; flex-grow: 0.5;"> -->
         <button type="submit"><?= $translations[$lang]['search_btn'] ?></button>
     </form>

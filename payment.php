@@ -11,7 +11,7 @@ if (empty($_SESSION['csrf_token'])) {
 require_once __DIR__ . '/../config/db_connect.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: auth');
+    header('Location: auth?redirect=' . urlencode($_SERVER['REQUEST_URI']));
     exit();
 }
 

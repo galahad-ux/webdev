@@ -9,12 +9,55 @@ require_once __DIR__ . '/../config/db_connect.php';
 // Only agency or admin
 $role = $_SESSION['user_role'] ?? 'user';
 if (!isset($_SESSION['user_id']) || !in_array($role, ['agency', 'admin'])) {
-    header('Location: auth');
+    header('Location: auth?redirect=' . urlencode($_SERVER['REQUEST_URI']));
     exit();
 }
 
 $lang    = $_SESSION['language'] ?? 'fr';
 $user_id = (int)$_SESSION['user_id'];
+
+$t = [
+    'fr' => [
+        'dashboard'    => 'Tableau de bord Agence',
+        'verified'     => '✓ Vérifié',
+        'stat_pkgs'    => 'Packages voyage',
+        'stat_bkgs'    => 'Réservations totales',
+        'stat_rev'     => 'Chiffre d\'affaires',
+        'my_pkgs'      => 'Mes packages voyage',
+        'new_pkg'      => '+ Nouveau package',
+        'no_pkgs'      => 'Vous n\'avez pas encore de packages voyage.',
+        'create_first' => 'Créer votre premier package',
+        'col_name'     => 'Nom',
+        'col_dest'     => 'Destination',
+        'col_status'   => 'Statut',
+        'col_bookings' => 'Réservations',
+        'col_revenue'  => 'Chiffre d\'affaires',
+        'col_actions'  => 'Actions',
+        'edit'         => 'Modifier',
+        'view'         => 'Voir',
+        'untitled'     => 'Sans titre',
+    ],
+    'en' => [
+        'dashboard'    => 'Agency Dashboard',
+        'verified'     => '✓ Verified',
+        'stat_pkgs'    => 'Trip packages',
+        'stat_bkgs'    => 'Total bookings',
+        'stat_rev'     => 'Total revenue',
+        'my_pkgs'      => 'My Trip Packages',
+        'new_pkg'      => '+ New package',
+        'no_pkgs'      => 'You have no trip packages yet.',
+        'create_first' => 'Create your first package',
+        'col_name'     => 'Name',
+        'col_dest'     => 'Destination',
+        'col_status'   => 'Status',
+        'col_bookings' => 'Bookings',
+        'col_revenue'  => 'Revenue',
+        'col_actions'  => 'Actions',
+        'edit'         => 'Edit',
+        'view'         => 'View',
+        'untitled'     => 'Untitled',
+    ],
+][$lang];
 
 // Fetch agency record
 $agencyStmt = $pdo->prepare("SELECT * FROM agency WHERE user_id = ?");
@@ -61,7 +104,7 @@ if ($agency_id) {
     }
 }
 
-$page_title = 'Momo - Agency Dashboard';
+$page_title = 'Momo - ' . $t['dashboard'];
 include 'header.php';
 ?>
 
@@ -89,9 +132,9 @@ include 'header.php';
 </style>
 
 <section class="hero" style="padding: 3rem 2%;">
-    <h1>Agency Dashboard</h1>
+    <h1><?= $t['dashboard'] ?></h1>
     <p style="color:#ddd;"><?= htmlspecialchars($agency['company_name'], ENT_QUOTES, 'UTF-8') ?>
-        <?php if ($agency['verified']): ?> ✓ Verified<?php endif; ?>
+        <?php if ($agency['verified']): ?> <?= $t['verified'] ?><?php endif; ?>
     </p>
 </section>
 
@@ -101,31 +144,31 @@ include 'header.php';
     <div class="stat-grid">
         <div class="stat-card">
             <div class="stat-number"><?= $totalPackages ?></div>
-            <div class="stat-label">Trip packages</div>
+            <div class="stat-label"><?= $t['stat_pkgs'] ?></div>
         </div>
         <div class="stat-card">
             <div class="stat-number"><?= $totalBookings ?></div>
-            <div class="stat-label">Total bookings</div>
+            <div class="stat-label"><?= $t['stat_bkgs'] ?></div>
         </div>
         <div class="stat-card">
             <div class="stat-number">€<?= number_format($totalRevenue, 0, ',', ' ') ?></div>
-            <div class="stat-label">Total revenue</div>
+            <div class="stat-label"><?= $t['stat_rev'] ?></div>
         </div>
     </div>
 
     <!-- Package list -->
     <div class="section-title">
-        <span>My Trip Packages</span>
+        <span><?= $t['my_pkgs'] ?></span>
         <?php if ($agency_id): ?>
-            <a href="package_form" class="btn-sm btn-new">+ New package</a>
+            <a href="package_form" class="btn-sm btn-new"><?= $t['new_pkg'] ?></a>
         <?php endif; ?>
     </div>
 
     <?php if (empty($packages)): ?>
         <div style="background:#fff; border:1px solid #eee; border-radius:8px; padding: 3rem; text-align:center; color:#888;">
-            <p>You have no trip packages yet.</p>
+            <p><?= $t['no_pkgs'] ?></p>
             <?php if ($agency_id): ?>
-                <a href="package_form" class="btn-sm btn-new" style="margin-top:1rem; display:inline-block;">Create your first package</a>
+                <a href="package_form" class="btn-sm btn-new" style="margin-top:1rem; display:inline-block;"><?= $t['create_first'] ?></a>
             <?php endif; ?>
         </div>
     <?php else: ?>
@@ -133,18 +176,18 @@ include 'header.php';
             <table class="pkg-table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Destination</th>
-                        <th>Status</th>
-                        <th>Bookings</th>
-                        <th>Revenue</th>
-                        <th>Actions</th>
+                        <th><?= $t['col_name'] ?></th>
+                        <th><?= $t['col_dest'] ?></th>
+                        <th><?= $t['col_status'] ?></th>
+                        <th><?= $t['col_bookings'] ?></th>
+                        <th><?= $t['col_revenue'] ?></th>
+                        <th><?= $t['col_actions'] ?></th>
                     </tr>
                 </thead>
                 <tbody>
                 <?php foreach ($packages as $pkg): ?>
                     <tr>
-                        <td><strong><?= htmlspecialchars($pkg['name'] ?? 'Untitled', ENT_QUOTES, 'UTF-8') ?></strong></td>
+                        <td><strong><?= htmlspecialchars($pkg['name'] ?? $t['untitled'], ENT_QUOTES, 'UTF-8') ?></strong></td>
                         <td><?= htmlspecialchars($pkg['city_name'] ?? '—', ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
                             <span class="status-pill status-<?= htmlspecialchars($pkg['status'], ENT_QUOTES, 'UTF-8') ?>">
@@ -154,9 +197,9 @@ include 'header.php';
                         <td><?= (int)$pkg['booking_count'] ?></td>
                         <td>€<?= number_format((float)$pkg['revenue'], 0, ',', ' ') ?></td>
                         <td>
-                            <a href="package_form?id=<?= (int)$pkg['package_id'] ?>" class="btn-sm btn-edit">Edit</a>
+                            <a href="package_form?id=<?= (int)$pkg['package_id'] ?>" class="btn-sm btn-edit"><?= $t['edit'] ?></a>
                             &nbsp;
-                            <a href="trip?id=<?= (int)$pkg['package_id'] ?>" class="btn-sm" style="background:#f0f0f0; color:#333;" target="_blank">View</a>
+                            <a href="trip?id=<?= (int)$pkg['package_id'] ?>" class="btn-sm" style="background:#f0f0f0; color:#333;" target="_blank"><?= $t['view'] ?></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

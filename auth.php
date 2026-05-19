@@ -6,7 +6,16 @@ session_start();
 // Aucune balise HTML ne doit se trouver dans cette zone.
 // =========================================================================
 
-require_once __DIR__ . '/../config/db_connect.php'; 
+require_once __DIR__ . '/../config/db_connect.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+
+$client = new Google_Client();
+$client->setClientId(GOOGLE_ID);
+$client->setClientSecret(GOOGLE_SECRET);
+$client->setRedirectUri(GOOGLE_REDIRECT);
+$client->addScope("email");
+$client->addScope("profile");
+$google_login_url = $client->createAuthUrl();
 
 // Initialisation des variables par défaut
 $step             = 1;
@@ -58,6 +67,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET['token'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'register') {
     $email = trim(filter_input(INPUT_GET, 'email', FILTER_SANITIZE_EMAIL) ?? '');
     $step  = 3;
+}
+
+// Capture redirect target (only allow relative URLs — no open-redirect)
+if (!empty($_GET['redirect'])) {
+    $redir = $_GET['redirect'];
+    if (isset($redir[0]) && $redir[0] === '/' && strpos($redir, '//') === false) {
+        $_SESSION['redirect_after_login'] = $redir;
+    }
 }
 
 // TRAITEMENT DES FORMULAIRES POST
@@ -113,7 +130,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['login_attempts'] = 0;
             
             // Redirection
-            header('Location: index.php'); 
+            $dest = $_SESSION['redirect_after_login'] ?? 'index';
+            unset($_SESSION['redirect_after_login']);
+            header('Location: ' . $dest);
             exit();
         } else {
             $_SESSION['login_attempts']++;
@@ -174,7 +193,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_name'] = $name;
                 $_SESSION['language']  = 'fr';
 
-                header('Location: index.php');
+                $dest = $_SESSION['redirect_after_login'] ?? 'index';
+                unset($_SESSION['redirect_after_login']);
+                header('Location: ' . $dest);
                 exit();
                 
             } catch (PDOException $e) {
@@ -303,10 +324,10 @@ include 'header.php';
 
             <div class="auth-divider"><span>Ou</span></div>
 
-            <button class="btn-google" type="button" onclick="alert('Liaison API Google à faire')">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
+            <a href="<?= filter_var($google_login_url, FILTER_SANITIZE_URL) ?>" class="btn-google" style="text-decoration: none;">
+                <img src="images/logo/google.webp" alt="Google Logo" style="width: 20px;">
                 Continuer avec Google
-            </button>
+            </a>
 
         <?php elseif ($step === 2): ?>
             <h2>Bon retour !</h2>

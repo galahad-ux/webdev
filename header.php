@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<?= htmlspecialchars($_SESSION['language'] ?? 'fr', ENT_QUOTES, 'UTF-8') ?>">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,20 +23,37 @@ if (session_status() === PHP_SESSION_NONE) {
     <body>
         <header>
             <a href="index" class="logo">momo</a>
-            <nav class="nav-center">
+            <nav class="nav-center" role="navigation" aria-label="Navigation principale">
                 <a href="blog">Blog</a>
                 <a href="book">Book</a>
+                <a href="forum">Forum</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="messages">Messages</a>
+                <?php endif; ?>
                 <?php if (in_array($_SESSION['user_role'] ?? 'user', ['agency', 'admin'])): ?>
                     <a href="agency" style="color:#c1272d; font-weight:600;">Agency</a>
+                <?php endif; ?>
+                <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?>
+                    <a href="admin" style="color:#c1272d; font-weight:600;" aria-label="Panneau d'administration">⚙ Admin</a>
                 <?php endif; ?>
             </nav>
             <div class="nav-right">
                 <span>EUR</span>
-                <span class="lang-flag">🇬🇧</span>
+                <?php
+                $_cur_lang   = $_SESSION['language'] ?? 'fr';
+                $_switch_to  = $_cur_lang === 'fr' ? 'en' : 'fr';
+                $_flag       = $_cur_lang === 'fr' ? '🇬🇧' : '🇫🇷';
+                $_aria_label = $_cur_lang === 'fr' ? 'Switch to English' : 'Passer en français';
+                ?>
+                <a href="setlang?lang=<?= $_switch_to ?>"
+                   class="lang-flag"
+                   aria-label="<?= $_aria_label ?>"
+                   style="text-decoration:none; cursor:pointer;"><?= $_flag ?></a>
 
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="user_page" style="margin-right: 15px; color: inherit; text-decoration: none; font-weight: 500;">
-                        <?= htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8') ?>
+                    <a href="user_page" style="margin-right: 15px; color: inherit; text-decoration: none; font-weight: 500;"
+                       aria-label="Mon profil : <?= htmlspecialchars($_SESSION['user_name'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                        <?= htmlspecialchars($_SESSION['user_name'] ?? '', ENT_QUOTES, 'UTF-8') ?>
                     </a>
                 <?php else: ?>
                     <a href="auth" class="btn-signup">Sign up</a>

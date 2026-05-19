@@ -144,14 +144,60 @@ include 'header.php';
     .btn-view:hover { background: #a01f24; }
     .filters { margin-right: 1.5rem; }
     .results { min-width: 0 !important; }
-    @media (min-width: 1101px) {
+
+    /* Desktop : carte sticky sur le côté */
+    @media (min-width: 901px) {
         .map-section { flex: 0 0 35%; width: 35%; }
+        #map { height: calc(100vh - 120px); position: sticky; top: 100px; }
     }
+
     .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0 0.5rem; }
-    @media (max-width: 700px) {
+
+    /* Mobile Layout Override - Bulletproof */
+    @media (max-width: 1100px) {
+        .booking-container {
+            flex-direction: column !important;
+            flex-wrap: nowrap !important;
+            gap: 2rem !important;
+            padding-bottom: 3rem !important;
+        }
+        .filters {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            position: relative !important;
+            top: auto !important;
+        }
+        .filters h3 { grid-column: 1 / -1; margin-bottom: 0; }
+        .results {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+        }
+        .resizer { display: none !important; }
+        .map-section {
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 400px !important;
+            position: relative !important;
+            top: auto !important;
+            order: 10 !important;
+            margin: 0 !important;
+        }
+        #map {
+            height: 100% !important;
+            width: 100% !important;
+            position: relative !important;
+            top: auto !important;
+            z-index: 1 !important;
+        }
+    }
+
+    @media (max-width: 600px) {
         .trip-card { flex-direction: column; }
         .trip-card img { width: 100%; min-width: unset; height: 180px; }
-        .resizer { display: none; }
+        .map-section { height: 300px !important; margin-bottom: 3rem !important; }
     }
 </style>
 
@@ -261,7 +307,7 @@ include 'header.php';
     <div class="resizer" id="dragMe" title="Resize map"></div>
 
     <section class="map-section" id="mapContainer">
-        <div id="map" style="height: calc(100vh - 120px); position: sticky; top: 100px;"></div>
+        <div id="map"></div>
     </section>
 
 </main>

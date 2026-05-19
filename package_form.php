@@ -12,13 +12,128 @@ require_once __DIR__ . '/../config/db_connect.php';
 
 $role = $_SESSION['user_role'] ?? 'user';
 if (!isset($_SESSION['user_id']) || !in_array($role, ['agency', 'admin'])) {
-    header('Location: auth');
+    header('Location: auth?redirect=' . urlencode($_SERVER['REQUEST_URI']));
     exit();
 }
 
 $user_id   = (int)$_SESSION['user_id'];
 $lang      = $_SESSION['language'] ?? 'fr';
 $package_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+
+$t = [
+    'fr' => [
+        'title_edit'      => 'Modifier le package',
+        'title_new'       => 'Nouveau package voyage',
+        'back'            => '← Retour au tableau de bord',
+        'pkg_info'        => 'Informations du package',
+        'destination'     => 'Destination',
+        'none'            => '— aucune —',
+        'status'          => 'Statut',
+        'image_url'       => 'URL de l\'image (chemin depuis la racine)',
+        'base_price'      => 'Prix de base (€ / personne)',
+        'translations_h'  => 'Traductions',
+        'name_fr'         => 'Nom (FR)',
+        'desc_fr'         => 'Description (FR)',
+        'high_fr'         => 'Points forts (FR) — une ligne',
+        'name_en'         => 'Nom (EN)',
+        'desc_en'         => 'Description (EN)',
+        'high_en'         => 'Points forts (EN) — une ligne',
+        'save'            => 'Enregistrer',
+        'dep_dates'       => 'Dates de départ',
+        'col_dep'         => 'Départ',
+        'col_ret'         => 'Retour',
+        'col_nights'      => 'Nuits',
+        'col_price'       => '€/pers.',
+        'col_spots'       => 'Places',
+        'col_booked'      => 'Réservées',
+        'no_dates'        => 'Aucune date pour le moment.',
+        'dep_date'        => 'Date de départ',
+        'ret_date'        => 'Date de retour',
+        'duration'        => 'Durée (nuits)',
+        'price_pp'        => 'Prix par personne (€)',
+        'max_spots'       => 'Places max',
+        'add_date'        => '+ Ajouter une date',
+        'what_incl'       => 'Ce qui est inclus',
+        'col_type'        => 'Type',
+        'col_name'        => 'Nom',
+        'col_desc'        => 'Description',
+        'col_max'         => 'Participants max',
+        'no_incl'         => 'Aucune inclusion pour le moment.',
+        'inc_max_hint'    => 'Participants max (laisser vide pour hôtel/transport)',
+        'sort_order'      => 'Ordre d\'affichage',
+        'add_incl'        => '+ Ajouter une inclusion',
+        'remove'          => 'Supprimer',
+        'rm_date_confirm' => 'Supprimer cette date ?',
+        'rm_incl_confirm' => 'Supprimer ?',
+        'err_name_req'    => 'Le nom en français est obligatoire.',
+        'err_date'        => 'Dates invalides. La date de retour doit être après la date de départ.',
+        'err_incl_name'   => 'Le nom est obligatoire.',
+        'err_date_booked' => 'Impossible de supprimer une date avec des réservations.',
+        'err_db'          => 'Erreur base de données : ',
+        'saved'           => 'Package enregistré.',
+        'saved_ok'        => 'Package enregistré avec succès.',
+        'date_added'      => 'Date ajoutée.',
+        'date_removed'    => 'Date supprimée.',
+        'incl_added'      => 'Inclusion ajoutée.',
+        'incl_removed'    => 'Inclusion supprimée.',
+    ],
+    'en' => [
+        'title_edit'      => 'Edit Package',
+        'title_new'       => 'New Trip Package',
+        'back'            => '← Back to dashboard',
+        'pkg_info'        => 'Package Information',
+        'destination'     => 'Destination',
+        'none'            => '— none —',
+        'status'          => 'Status',
+        'image_url'       => 'Image URL (path from website root)',
+        'base_price'      => 'Base price (€ / person)',
+        'translations_h'  => 'Translations',
+        'name_fr'         => 'Name (FR)',
+        'desc_fr'         => 'Description (FR)',
+        'high_fr'         => 'Highlights (FR) — one line',
+        'name_en'         => 'Name (EN)',
+        'desc_en'         => 'Description (EN)',
+        'high_en'         => 'Highlights (EN) — one line',
+        'save'            => 'Save package',
+        'dep_dates'       => 'Departure Dates',
+        'col_dep'         => 'Departure',
+        'col_ret'         => 'Return',
+        'col_nights'      => 'Nights',
+        'col_price'       => '€/person',
+        'col_spots'       => 'Spots',
+        'col_booked'      => 'Booked',
+        'no_dates'        => 'No dates yet.',
+        'dep_date'        => 'Departure date',
+        'ret_date'        => 'Return date',
+        'duration'        => 'Duration (nights)',
+        'price_pp'        => 'Price per person (€)',
+        'max_spots'       => 'Max spots',
+        'add_date'        => '+ Add date',
+        'what_incl'       => "What's Included",
+        'col_type'        => 'Type',
+        'col_name'        => 'Name',
+        'col_desc'        => 'Description',
+        'col_max'         => 'Max participants',
+        'no_incl'         => 'No inclusions yet.',
+        'inc_max_hint'    => 'Max participants (leave blank for hotel/transport)',
+        'sort_order'      => 'Sort order',
+        'add_incl'        => '+ Add inclusion',
+        'remove'          => 'Remove',
+        'rm_date_confirm' => 'Remove this date?',
+        'rm_incl_confirm' => 'Remove?',
+        'err_name_req'    => 'French name is required.',
+        'err_date'        => 'Invalid date fields. Return date must be after departure date.',
+        'err_incl_name'   => 'Name is required.',
+        'err_date_booked' => 'Cannot remove a date that has bookings.',
+        'err_db'          => 'Database error: ',
+        'saved'           => 'Package saved.',
+        'saved_ok'        => 'Package saved successfully.',
+        'date_added'      => 'Date added.',
+        'date_removed'    => 'Date removed.',
+        'incl_added'      => 'Inclusion added.',
+        'incl_removed'    => 'Inclusion removed.',
+    ],
+][$lang];
 $success   = '';
 $error     = '';
 
@@ -74,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $high_en        = trim($_POST['high_en'] ?? '');
 
         if (!$name_fr) {
-            $error = 'Le nom en français est obligatoire.';
+            $error = $t['err_name_req'];
         } else {
             try {
                 if (!$package_id) {
@@ -96,13 +211,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ->execute([$package_id, $lc, $nm, $de, $hi]);
                 }
 
-                $success = 'Package saved.';
+                $success = $t['saved'];
                 // Reload package
                 $pkgStmt = $pdo->prepare("SELECT * FROM trip_package WHERE package_id = ?");
                 $pkgStmt->execute([$package_id]);
                 $package = $pkgStmt->fetch(PDO::FETCH_ASSOC);
             } catch (PDOException $e) {
-                $error = 'Database error: ' . $e->getMessage();
+                $error = $t['err_db'] . $e->getMessage();
             }
         }
     }
@@ -120,9 +235,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($dep && $ret && $dep < $ret && $nights > 0 && $price > 0 && $spots > 0) {
             $pdo->prepare("INSERT INTO trip_date (package_id, departure_date, return_date, duration_nights, price_per_person, max_spots) VALUES (?,?,?,?,?,?)")
                 ->execute([$package_id, $dep, $ret, $nights, $price, $spots]);
-            $success = 'Date added.';
+            $success = $t['date_added'];
         } else {
-            $error = 'Invalid date fields. Return date must be after departure date.';
+            $error = $t['err_date'];
         }
     }
 
@@ -137,9 +252,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $check->execute([$date_id, $package_id]);
             if ($check->fetchColumn() == 0) {
                 $pdo->prepare("DELETE FROM trip_date WHERE date_id = ? AND package_id = ?")->execute([$date_id, $package_id]);
-                $success = 'Date removed.';
+                $success = $t['date_removed'];
             } else {
-                $error = 'Cannot remove a date that has bookings.';
+                $error = $t['err_date_booked'];
             }
         }
     }
@@ -157,9 +272,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($name) {
             $pdo->prepare("INSERT INTO trip_inclusion (package_id, type, name, description, max_participants, sort_order) VALUES (?,?,?,?,?,?)")
                 ->execute([$package_id, $type, $name, $desc ?: null, $maxp ?: null, $order]);
-            $success = 'Inclusion added.';
+            $success = $t['incl_added'];
         } else {
-            $error = 'Name is required.';
+            $error = $t['err_incl_name'];
         }
     }
 
@@ -170,7 +285,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $inc_id = filter_var($_POST['inclusion_id'] ?? 0, FILTER_VALIDATE_INT);
         if ($inc_id) {
             $pdo->prepare("DELETE FROM trip_inclusion WHERE inclusion_id = ? AND package_id = ?")->execute([$inc_id, $package_id]);
-            $success = 'Inclusion removed.';
+            $success = $t['incl_removed'];
         }
     }
 
@@ -182,7 +297,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Handle ?saved=1 flash message
-if (isset($_GET['saved'])) $success = 'Package saved successfully.';
+if (isset($_GET['saved'])) $success = $t['saved_ok'];
 
 // Load current translations
 $trans = ['fr' => ['name' => '', 'description' => '', 'highlights' => ''],
@@ -208,7 +323,7 @@ if ($package_id) {
     $inclusions = $iStmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-$page_title = 'Momo - ' . ($package_id ? 'Edit Package' : 'New Package');
+$page_title = 'Momo - ' . ($package_id ? $t['title_edit'] : $t['title_new']);
 include 'header.php';
 
 // Helper
@@ -242,13 +357,13 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
 </style>
 
 <section class="hero" style="padding: 3rem 2%;">
-    <h1><?= $package_id ? 'Edit Package' : 'New Trip Package' ?></h1>
+    <h1><?= $package_id ? $t['title_edit'] : $t['title_new'] ?></h1>
 </section>
 
 <div class="pf-container">
 
     <div style="margin-bottom:1.5rem;">
-        <a href="agency" style="color:#c1272d; text-decoration:none; font-size:0.95rem;">← Back to dashboard</a>
+        <a href="agency" style="color:#c1272d; text-decoration:none; font-size:0.95rem;"><?= $t['back'] ?></a>
     </div>
 
     <?php if ($success): ?>
@@ -260,16 +375,16 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
 
     <!-- Main package info -->
     <div class="pf-card">
-        <h3>Package Information</h3>
+        <h3><?= $t['pkg_info'] ?></h3>
         <form method="POST" action="package_form<?= $package_id ? '?id=' . $package_id : '' ?>">
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
             <input type="hidden" name="_action" value="save_package">
 
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Destination</label>
+                    <label><?= $t['destination'] ?></label>
                     <select name="destination_id">
-                        <option value="">— none —</option>
+                        <option value=""><?= $t['none'] ?></option>
                         <?php foreach ($destinations as $d): ?>
                             <option value="<?= (int)$d['destination_id'] ?>"
                                 <?= ($package['destination_id'] ?? null) == $d['destination_id'] ? 'selected' : '' ?>>
@@ -279,7 +394,7 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Status</label>
+                    <label><?= $t['status'] ?></label>
                     <select name="status">
                         <?php foreach (['published', 'draft', 'archived'] as $s): ?>
                             <option value="<?= $s ?>" <?= ($package['status'] ?? 'draft') === $s ? 'selected' : '' ?>><?= ucfirst($s) ?></option>
@@ -287,34 +402,34 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Image URL (path from website root)</label>
+                    <label><?= $t['image_url'] ?></label>
                     <input type="text" name="image_url" value="<?= h($package['image_url'] ?? '') ?>" placeholder="images/destinations/Paris/Paris.webp">
                 </div>
                 <div class="form-group">
-                    <label>Base price (€ / person)</label>
+                    <label><?= $t['base_price'] ?></label>
                     <input type="number" name="base_price" step="0.01" min="0" value="<?= h($package['base_price'] ?? '0') ?>">
                 </div>
             </div>
 
             <hr style="border:none; border-top:1px solid #f0f0f0; margin: 1.5rem 0;">
-            <h4 style="color:#4a1c35; margin-bottom:1rem;">Translations</h4>
+            <h4 style="color:#4a1c35; margin-bottom:1rem;"><?= $t['translations_h'] ?></h4>
 
             <div class="form-grid">
                 <div>
                     <p style="font-weight:bold; color:#888; margin-bottom:1rem;">🇫🇷 Français</p>
-                    <div class="form-group"><label>Name (FR)</label><input type="text" name="name_fr" value="<?= h($trans['fr']['name']) ?>" required></div>
-                    <div class="form-group"><label>Description (FR)</label><textarea name="desc_fr"><?= h($trans['fr']['description']) ?></textarea></div>
-                    <div class="form-group"><label>Highlights (FR) — one line</label><input type="text" name="high_fr" value="<?= h($trans['fr']['highlights']) ?>"></div>
+                    <div class="form-group"><label><?= $t['name_fr'] ?></label><input type="text" name="name_fr" value="<?= h($trans['fr']['name']) ?>" required></div>
+                    <div class="form-group"><label><?= $t['desc_fr'] ?></label><textarea name="desc_fr"><?= h($trans['fr']['description']) ?></textarea></div>
+                    <div class="form-group"><label><?= $t['high_fr'] ?></label><input type="text" name="high_fr" value="<?= h($trans['fr']['highlights']) ?>"></div>
                 </div>
                 <div>
                     <p style="font-weight:bold; color:#888; margin-bottom:1rem;">🇬🇧 English</p>
-                    <div class="form-group"><label>Name (EN)</label><input type="text" name="name_en" value="<?= h($trans['en']['name']) ?>"></div>
-                    <div class="form-group"><label>Description (EN)</label><textarea name="desc_en"><?= h($trans['en']['description']) ?></textarea></div>
-                    <div class="form-group"><label>Highlights (EN) — one line</label><input type="text" name="high_en" value="<?= h($trans['en']['highlights']) ?>"></div>
+                    <div class="form-group"><label><?= $t['name_en'] ?></label><input type="text" name="name_en" value="<?= h($trans['en']['name']) ?>"></div>
+                    <div class="form-group"><label><?= $t['desc_en'] ?></label><textarea name="desc_en"><?= h($trans['en']['description']) ?></textarea></div>
+                    <div class="form-group"><label><?= $t['high_en'] ?></label><input type="text" name="high_en" value="<?= h($trans['en']['highlights']) ?>"></div>
                 </div>
             </div>
 
-            <button type="submit" class="btn-save">Save package</button>
+            <button type="submit" class="btn-save"><?= $t['save'] ?></button>
         </form>
     </div>
 
@@ -322,12 +437,12 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
 
     <!-- Departure dates -->
     <div class="pf-card">
-        <h3>Departure Dates</h3>
+        <h3><?= $t['dep_dates'] ?></h3>
 
         <?php if ($dates): ?>
         <div style="overflow-x:auto; margin-bottom:1.5rem;">
             <table class="data-table">
-                <thead><tr><th>Departure</th><th>Return</th><th>Nights</th><th>€/person</th><th>Spots</th><th>Booked</th><th></th></tr></thead>
+                <thead><tr><th><?= $t['col_dep'] ?></th><th><?= $t['col_ret'] ?></th><th><?= $t['col_nights'] ?></th><th><?= $t['col_price'] ?></th><th><?= $t['col_spots'] ?></th><th><?= $t['col_booked'] ?></th><th></th></tr></thead>
                 <tbody>
                 <?php foreach ($dates as $d): ?>
                     <tr>
@@ -338,11 +453,11 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
                         <td><?= (int)$d['max_spots'] ?></td>
                         <td><?= (int)$d['booked_spots'] ?></td>
                         <td>
-                            <form method="POST" action="package_form?id=<?= $package_id ?>" onsubmit="return confirm('Remove this date?');">
+                            <form method="POST" action="package_form?id=<?= $package_id ?>" onsubmit="return confirm('<?= htmlspecialchars($t['rm_date_confirm'], ENT_QUOTES, 'UTF-8') ?>');">
                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <input type="hidden" name="_action" value="remove_date">
                                 <input type="hidden" name="date_id" value="<?= (int)$d['date_id'] ?>">
-                                <button type="submit" class="btn-danger-sm">Remove</button>
+                                <button type="submit" class="btn-danger-sm"><?= $t['remove'] ?></button>
                             </form>
                         </td>
                     </tr>
@@ -351,31 +466,31 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
             </table>
         </div>
         <?php else: ?>
-            <p style="color:#888; margin-bottom:1.5rem;">No dates yet.</p>
+            <p style="color:#888; margin-bottom:1.5rem;"><?= $t['no_dates'] ?></p>
         <?php endif; ?>
 
         <form method="POST" action="package_form?id=<?= $package_id ?>">
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
             <input type="hidden" name="_action" value="add_date">
             <div class="form-grid">
-                <div class="form-group"><label>Departure date</label><input type="date" name="dep_date" required min="<?= date('Y-m-d') ?>"></div>
-                <div class="form-group"><label>Return date</label><input type="date" name="ret_date" required></div>
-                <div class="form-group"><label>Duration (nights)</label><input type="number" name="nights" min="1" required></div>
-                <div class="form-group"><label>Price per person (€)</label><input type="number" name="date_price" step="0.01" min="0" required></div>
-                <div class="form-group"><label>Max spots</label><input type="number" name="max_spots" min="1" value="20" required></div>
+                <div class="form-group"><label><?= $t['dep_date'] ?></label><input type="date" name="dep_date" required min="<?= date('Y-m-d') ?>"></div>
+                <div class="form-group"><label><?= $t['ret_date'] ?></label><input type="date" name="ret_date" required></div>
+                <div class="form-group"><label><?= $t['duration'] ?></label><input type="number" name="nights" min="1" required></div>
+                <div class="form-group"><label><?= $t['price_pp'] ?></label><input type="number" name="date_price" step="0.01" min="0" required></div>
+                <div class="form-group"><label><?= $t['max_spots'] ?></label><input type="number" name="max_spots" min="1" value="20" required></div>
             </div>
-            <button type="submit" class="btn-add">+ Add date</button>
+            <button type="submit" class="btn-add"><?= $t['add_date'] ?></button>
         </form>
     </div>
 
     <!-- Inclusions -->
     <div class="pf-card">
-        <h3>What's Included</h3>
+        <h3><?= $t['what_incl'] ?></h3>
 
         <?php if ($inclusions): ?>
         <div style="overflow-x:auto; margin-bottom:1.5rem;">
             <table class="data-table">
-                <thead><tr><th>Type</th><th>Name</th><th>Description</th><th>Max participants</th><th></th></tr></thead>
+                <thead><tr><th><?= $t['col_type'] ?></th><th><?= $t['col_name'] ?></th><th><?= $t['col_desc'] ?></th><th><?= $t['col_max'] ?></th><th></th></tr></thead>
                 <tbody>
                 <?php foreach ($inclusions as $inc): ?>
                     <tr>
@@ -384,11 +499,11 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
                         <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="<?= h($inc['description'] ?? '') ?>"><?= h($inc['description'] ?? '—') ?></td>
                         <td><?= $inc['max_participants'] !== null ? (int)$inc['max_participants'] : '∞' ?></td>
                         <td>
-                            <form method="POST" action="package_form?id=<?= $package_id ?>" onsubmit="return confirm('Remove?');">
+                            <form method="POST" action="package_form?id=<?= $package_id ?>" onsubmit="return confirm('<?= htmlspecialchars($t['rm_incl_confirm'], ENT_QUOTES, 'UTF-8') ?>');">
                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <input type="hidden" name="_action" value="remove_inclusion">
                                 <input type="hidden" name="inclusion_id" value="<?= (int)$inc['inclusion_id'] ?>">
-                                <button type="submit" class="btn-danger-sm">Remove</button>
+                                <button type="submit" class="btn-danger-sm"><?= $t['remove'] ?></button>
                             </form>
                         </td>
                     </tr>
@@ -397,7 +512,7 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
             </table>
         </div>
         <?php else: ?>
-            <p style="color:#888; margin-bottom:1.5rem;">No inclusions yet.</p>
+            <p style="color:#888; margin-bottom:1.5rem;"><?= $t['no_incl'] ?></p>
         <?php endif; ?>
 
         <form method="POST" action="package_form?id=<?= $package_id ?>">
@@ -405,19 +520,19 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
             <input type="hidden" name="_action" value="add_inclusion">
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Type</label>
+                    <label><?= $t['col_type'] ?></label>
                     <select name="inc_type">
                         <option value="hotel">🏨 Hotel</option>
                         <option value="transport">✈️ Transport</option>
                         <option value="activity">🎯 Activity</option>
                     </select>
                 </div>
-                <div class="form-group"><label>Name</label><input type="text" name="inc_name" required placeholder="e.g. The Savoy 4★"></div>
-                <div class="form-group"><label>Description</label><input type="text" name="inc_desc" placeholder="Short description (optional)"></div>
-                <div class="form-group"><label>Max participants (leave blank for hotel/transport)</label><input type="number" name="inc_max" min="1" placeholder="e.g. 15 for activity"></div>
-                <div class="form-group"><label>Sort order</label><input type="number" name="inc_order" value="<?= count($inclusions) + 1 ?>" min="0"></div>
+                <div class="form-group"><label><?= $t['inc_name'] ?></label><input type="text" name="inc_name" required placeholder="e.g. The Savoy 4★"></div>
+                <div class="form-group"><label><?= $t['col_desc'] ?></label><input type="text" name="inc_desc" placeholder="Short description (optional)"></div>
+                <div class="form-group"><label><?= $t['inc_max_hint'] ?></label><input type="number" name="inc_max" min="1" placeholder="e.g. 15 for activity"></div>
+                <div class="form-group"><label><?= $t['sort_order'] ?></label><input type="number" name="inc_order" value="<?= count($inclusions) + 1 ?>" min="0"></div>
             </div>
-            <button type="submit" class="btn-add">+ Add inclusion</button>
+            <button type="submit" class="btn-add"><?= $t['add_incl'] ?></button>
         </form>
     </div>
 

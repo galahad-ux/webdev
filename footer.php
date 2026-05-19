@@ -3,7 +3,7 @@
                 <div class="footer-col">
                     <h4>Momo Travel</h4>
                     <ul>
-                        <li><a href="#">About Us</a></li>
+                        <li><a href="index.php">About Us</a></li>
                         <li><a href="#">Careers</a></li>
                         <li><a href="#">Press</a></li>
                     </ul>
@@ -13,7 +13,7 @@
                     <ul>
                         <li><a href="contact">Contact Us</a></li>
                         <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Cancellations and Refunds</a></li>
+                        <li><a href="contact">Cancellations and Refunds</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">

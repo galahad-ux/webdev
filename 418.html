@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erreur 418 - I'm a teapot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            background-color: #fdf6e3;
+            color: #333;
+            overflow: hidden;
+            touch-action: none; /* Empêche le scroll sur mobile pendant le jeu */
+        }
+
+        .arcade-font {
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        /* Animation du titre qui tremble un peu (effet troll) */
+        @keyframes jitter {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(2px, -2px) rotate(1deg); }
+            50% { transform: translate(-2px, 2px) rotate(-1deg); }
+            75% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .troll-title:hover {
+            animation: jitter 0.2s infinite;
+            color: #d97706;
+            cursor: crosshair;
+        }
+
+        #game-container {
+            box-shadow: 
+                8px 8px 0px 0px rgba(0,0,0,1),
+                -8px -8px 0px 0px rgba(255,255,255,0.8);
+            border: 4px solid #333;
+            background-color: #fff;
+            position: relative;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            image-rendering: pixelated; /* Pour un look rétro */
+        }
+
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.1) 50%,
+                rgba(0,0,0,0.1)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col items-center justify-center p-4">
+
+    <!-- En-tête -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 arcade-font troll-title transition-colors">ERR 418</h1>
+        <p class="text-xl md:text-2xl font-semibold text-gray-700">Je suis une théière.</p>
+        <p class="text-sm mt-2 text-gray-500 italic">Le vrai site arrive bientôt. En attendant, fuyez le café.</p>
+    </div>
+
+    <!-- Conteneur du jeu -->
+    <div id="game-container" class="w-full max-w-4xl rounded-lg overflow-hidden relative">
+        <canvas id="gameCanvas" width="800" height="300"></canvas>
+        <div class="scanlines rounded-lg"></div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="mt-6 text-center arcade-font text-xs md:text-sm text-gray-500 space-y-2">
+        <p class="animate-pulse">Appuyez sur <span class="bg-gray-200 text-gray-800 px-2 py-1 rounded">ESPACE</span> ou <span class="bg-gray-200 text-gray-800 px-2 py-1 rounded">CLIQUEZ</span> pour sauter</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Variables globales du jeu
+        let frames = 0;
+        let score = 0;
+        let highScore = localStorage.getItem('teapotHighScore') || 0;
+        let gameSpeed = 5;
+        let gameOver = false;
+        let gameStarted = false;
+
+        // Configuration de la physique
+        const gravity = 0.6;
+
+        // Objets du jeu en Emojis
+        const TEAPOT_EMOJI = "🫖";
+        const COFFEE_EMOJI = "☕";
+        const CLOUD_EMOJI = "☁️";
+
+        // Classe pour le Joueur (La Théière)
+        class Teapot {
+            constructor() {
+                this.size = 50; // Taille approximative de l'emoji
+                this.x = 50;
+                this.y = canvas.height - this.size - 20;
+                this.originalY = this.y;
+                this.velocityY = 0;
+                this.jumpStrength = -12;
+                this.isJumping = false;
+            }
+
+            draw() {
+                ctx.font = "50px Arial";
+                ctx.textBaseline = "top";
+                // Ajouter une petite rotation quand elle saute
+                if (this.isJumping) {
+                    ctx.save();
+                    ctx.translate(this.x + this.size/2, this.y + this.size/2);
+                    ctx.rotate(-0.1);
+                    ctx.fillText(TEAPOT_EMOJI, -this.size/2, -this.size/2);
+                    ctx.restore();
+                } else {
+                    ctx.fillText(TEAPOT_EMOJI, this.x, this.y);
+                }
+            }
+
+            update() {
+                // Application de la gravité
+                this.y += this.velocityY;
+                this.velocityY += gravity;
+
+                // Collision avec le sol
+                if (this.y >= this.originalY) {
+                    this.y = this.originalY;
+                    this.velocityY = 0;
+                    this.isJumping = false;
+                }
+            }
+
+            jump() {
+                if (!this.isJumping) {
+                    this.velocityY = this.jumpStrength;
+                    this.isJumping = true;
+                }
+            }
+        }
+
+        // Classe pour les Obstacles (Les tasses de café)
+        class Obstacle {
+            constructor() {
+                this.size = 40;
+                this.x = canvas.width;
+                this.y = canvas.height - this.size - 25;
+                // Aléatoire entre 1 et 2 tasses
+                this.count = Math.random() > 0.8 ? 2 : 1; 
+            }
+
+            draw() {
+                ctx.font = "40px Arial";
+                ctx.textBaseline = "top";
+                for (let i = 0; i < this.count; i++) {
+                    ctx.fillText(COFFEE_EMOJI, this.x + (i * 30), this.y);
+                }
+            }
+
+            update() {
+                this.x -= gameSpeed;
+            }
+        }
+
+        // Classe pour le décor (Nuages)
+        class Cloud {
+            constructor() {
+                this.x = canvas.width;
+                this.y = Math.random() * (canvas.height / 2);
+                this.size = Math.random() * 30 + 30;
+                this.speed = (Math.random() * 1) + 0.5;
+            }
+
+            draw() {
+                ctx.font = `${this.size}px Arial`;
+                ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+                ctx.textBaseline = "top";
+                ctx.fillText(CLOUD_EMOJI, this.x, this.y);
+            }
+
+            update() {
+                this.x -= this.speed;
+            }
+        }
+
+        // Initialisation
+        let teapot = new Teapot();
+        let obstacles = [];
+        let clouds = [];
+
+        function init() {
+            teapot = new Teapot();
+            obstacles = [];
+            clouds = [];
+            score = 0;
+            frames = 0;
+            gameSpeed = 5;
+            gameOver = false;
+            gameStarted = true;
+        }
+
+        // Détection de collision (AABB simplifié avec marge de tolérance)
+        function checkCollision(teapot, obstacle) {
+            const tolerance = 15; // Rendre la hitbox un peu plus permissive
+            const obsWidth = obstacle.count * 30 + 10;
+            
+            if (
+                teapot.x + tolerance < obstacle.x + obsWidth &&
+                teapot.x + teapot.size - tolerance > obstacle.x &&
+                teapot.y + tolerance < obstacle.y + obstacle.size &&
+                teapot.y + teapot.size - tolerance > obstacle.y
+            ) {
+                return true;
+            }
+            return false;
+        }
+
+        // Dessiner le sol
+        function drawGround() {
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - 20);
+            ctx.lineTo(canvas.width, canvas.height - 20);
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#333';
+            ctx.stroke();
+            
+            // Petits points pour simuler la vitesse du sol
+            ctx.fillStyle = '#888';
+            for(let i=0; i<canvas.width; i+=40) {
+                let xPos = (i - (frames * gameSpeed % 40));
+                if(xPos > 0) ctx.fillRect(xPos, canvas.height - 10, 3, 3);
+            }
+        }
+
+        // Dessiner l'interface (Score)
+        function drawUI() {
+            ctx.fillStyle = "#333";
+            ctx.font = "14px 'Press Start 2P', monospace";
+            ctx.textAlign = "right";
+            
+            // Format du score (ajout de zéros devant)
+            const scoreStr = Math.floor(score).toString().padStart(5, '0');
+            const hiScoreStr = Math.floor(highScore).toString().padStart(5, '0');
+            
+            ctx.fillText(`HI ${hiScoreStr}  ${scoreStr}`, canvas.width - 20, 30);
+        }
+
+        // Écran de fin
+        function drawGameOver() {
+            ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = "#333";
+            ctx.font = "20px 'Press Start 2P', monospace";
+            ctx.textAlign = "center";
+            ctx.fillText("CAFEINE OVERDOSE!", canvas.width / 2, canvas.height / 2 - 20);
+            
+            ctx.font = "12px 'Press Start 2P', monospace";
+            ctx.fillText("Appuyez pour infuser à nouveau", canvas.width / 2, canvas.height / 2 + 20);
+        }
+
+        // Écran d'accueil
+        function drawStartScreen() {
+            ctx.fillStyle = "#333";
+            ctx.font = "16px 'Press Start 2P', monospace";
+            ctx.textAlign = "center";
+            ctx.fillText("Appuyez sur Espace pour jouer", canvas.width / 2, canvas.height / 2);
+            teapot.draw();
+            drawGround();
+        }
+
+        // Boucle principale du jeu
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!gameStarted) {
+                drawStartScreen();
+                return;
+            }
+
+            if (gameOver) {
+                drawGameOver();
+                return;
+            }
+
+            // Gestion du décor (Nuages)
+            if (frames % 100 === 0) {
+                clouds.push(new Cloud());
+            }
+            clouds.forEach((cloud, index) => {
+                cloud.update();
+                cloud.draw();
+                // Nettoyage des nuages sortis de l'écran
+                if (cloud.x + cloud.size < 0) clouds.splice(index, 1);
+            });
+
+            drawGround();
+
+            // Gestion des obstacles
+            // Augmenter la difficulté (vitesse)
+            if (frames % 600 === 0 && gameSpeed < 15) {
+                gameSpeed += 0.5;
+            }
+
+            // Spawn des obstacles (intervalle aléatoire)
+            let spawnRate = Math.max(60, 120 - Math.floor(score / 10)); // Devient plus fréquent avec le score
+            if (frames % spawnRate === 0 && Math.random() > 0.3) {
+                obstacles.push(new Obstacle());
+            }
+
+            obstacles.forEach((obstacle, index) => {
+                obstacle.update();
+                obstacle.draw();
+
+                // Collision
+                if (checkCollision(teapot, obstacle)) {
+                    gameOver = true;
+                    if (score > highScore) {
+                        highScore = Math.floor(score);
+                        localStorage.setItem('teapotHighScore', highScore);
+                    }
+                }
+
+                // Nettoyage
+                if (obstacle.x + (obstacle.count * 30) < 0) {
+                    obstacles.splice(index, 1);
+                }
+            });
+
+            // Gestion du joueur
+            teapot.update();
+            teapot.draw();
+
+            // Score et UI
+            score += 0.1;
+            drawUI();
+
+            frames++;
+        }
+
+        // Écouteurs d'événements
+        function handleInput(e) {
+            // Empêche le défilement par défaut si on appuie sur espace dans le jeu
+            if(e.type === 'keydown' && e.code === 'Space') {
+                e.preventDefault();
+            }
+
+            if (!gameStarted || gameOver) {
+                init();
+            } else {
+                teapot.jump();
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                handleInput(e);
+            }
+        });
+
+        // Support tactile et clic souris
+        canvas.addEventListener('mousedown', handleInput);
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Empêche le zoom/scroll sur mobile
+            handleInput(e);
+        }, { passive: false });
+
+        // Démarrer la boucle
+        animate();
+
+    </script>
+</body>
+</html>

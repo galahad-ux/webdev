@@ -69,26 +69,25 @@ include 'header.php';
 ?>
 
 <main id="main-content">
-<div class="info-page-container">
-    <section class="info-page-hero" aria-labelledby="mentions-heading">
+    <section class="hero" style="padding: 4rem 2%;">
         <h1 id="mentions-heading"><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?></h1>
-        <?php if (!empty($updated_at)): ?>
-        <p class="legal-updated">
-            <?= $lang === 'en' ? 'Last updated:' : 'Dernière mise à jour :' ?>
-            <?= htmlspecialchars(date($lang === 'en' ? 'F j, Y' : 'd/m/Y', strtotime($updated_at)), ENT_QUOTES, 'UTF-8') ?>
-        </p>
+            <?php if (!empty($updated_at)): ?>
+            <p class="legal-updated">
+                <?= $lang === 'en' ? 'Last updated:' : 'Dernière mise à jour :' ?>
+                <?= htmlspecialchars(date($lang === 'en' ? 'F j, Y' : 'd/m/Y', strtotime($updated_at)), ENT_QUOTES, 'UTF-8') ?>
+            </p>
         <?php endif; ?>
     </section>
+    <div class="info-page-container">
+        <article class="legal-content" aria-label="<?= $lang === 'en' ? 'Legal notice content' : 'Contenu des mentions légales' ?>">
+            <?= $content /* admin-managed HTML */ ?>
+        </article>
 
-    <article class="legal-content" aria-label="<?= $lang === 'en' ? 'Legal notice content' : 'Contenu des mentions légales' ?>">
-        <?= $content /* admin-managed HTML */ ?>
-    </article>
-
-    <nav class="legal-nav" aria-label="<?= $lang === 'en' ? 'Other legal pages' : 'Autres pages légales' ?>">
-        <a href="cgu"><?= $lang === 'en' ? '→ Terms of Service' : '→ CGU' ?></a>
-        <a href="faq"><?= $lang === 'en' ? '→ FAQ' : '→ FAQ' ?></a>
-    </nav>
-</div>
+        <nav class="legal-nav" aria-label="<?= $lang === 'en' ? 'Other legal pages' : 'Autres pages légales' ?>">
+            <a href="cgu"><?= $lang === 'en' ? '→ Terms of Service' : '→ CGU' ?></a>
+            <a href="faq"><?= $lang === 'en' ? '→ FAQ' : '→ FAQ' ?></a>
+        </nav>
+    </div>
 </main>
 
 <?php include 'footer.php'; ?>

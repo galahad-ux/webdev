@@ -73,17 +73,16 @@ include 'header.php';
 ?>
 
 <main id="main-content">
-<div class="info-page-container">
-    <section class="info-page-hero" aria-labelledby="cgu-heading">
-        <h1 id="cgu-heading"><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?></h1>
-        <?php if (!empty($updated_at)): ?>
-        <p class="legal-updated">
-            <?= $lang === 'en' ? 'Last updated:' : 'Dernière mise à jour :' ?>
-            <?= htmlspecialchars(date($lang === 'en' ? 'F j, Y' : 'd/m/Y', strtotime($updated_at)), ENT_QUOTES, 'UTF-8') ?>
-        </p>
-        <?php endif; ?>
+    <section class="hero" style="padding: 4rem 2%;">
+            <h1 id="cgu-heading"><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?></h1>
+            <?php if (!empty($updated_at)): ?>
+                <p class="legal-updated">
+                    <?= $lang === 'en' ? 'Last updated:' : 'Dernière mise à jour :' ?>
+                    <?= htmlspecialchars(date($lang === 'en' ? 'F j, Y' : 'd/m/Y', strtotime($updated_at)), ENT_QUOTES, 'UTF-8') ?>
+                </p>
+            <?php endif; ?>
     </section>
-
+<div class="info-page-container">
     <article class="legal-content" aria-label="<?= $lang === 'en' ? 'Terms of Service content' : 'Contenu des CGU' ?>">
         <?= $content /* admin-managed HTML */ ?>
     </article>

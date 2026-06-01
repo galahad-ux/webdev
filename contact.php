@@ -143,17 +143,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                              . "Langue  : $lang\n";
 
                     $headers = implode("\r\n", [
-                        'From: noreply@momo-vacation.com',
+                        'From: momo-vacation@alwaysdata.net',
                         'Reply-To: ' . $first_name . ' ' . $last_name . ' <' . $email . '>',
                         'Content-Type: text/plain; charset=UTF-8',
                         'X-Mailer: PHP/' . PHP_VERSION,
                     ]);
 
-                    mail($to, $esc_subject, $body, $headers);
+                    $sent = mail($to, $esc_subject, $body, $headers);
 
-                    // Regenerate CSRF token after successful submit
-                    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-                    $success = true;
+                    if (!$sent) {
+                        $error = $t['err_server'];
+                    } else {
+                        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                        $success = true;
+                    }
                 }
             }
         }

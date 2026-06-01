@@ -60,52 +60,51 @@ include 'header.php';
 ?>
 
 <main id="main-content">
-<div class="info-page-container">
-    <section class="info-page-hero" aria-labelledby="faq-heading">
-        <h1 id="faq-heading"><?= htmlspecialchars($t['title'], ENT_QUOTES, 'UTF-8') ?></h1>
-        <p><?= htmlspecialchars($t['subtitle'], ENT_QUOTES, 'UTF-8') ?></p>
+      <section class="hero" style="padding: 4rem 2%;">
+            <h1 id="faq-heading"><?= htmlspecialchars($t['title'], ENT_QUOTES, 'UTF-8') ?></h1>
+            <p><?= htmlspecialchars($t['subtitle'], ENT_QUOTES, 'UTF-8') ?></p>
     </section>
-
-    <section class="faq-section" aria-label="<?= $lang === 'en' ? 'Frequently asked questions' : 'Questions fréquentes' ?>">
-        <?php if (empty($faqs)): ?>
-            <p class="faq-empty"><?= htmlspecialchars($t['no_faq'], ENT_QUOTES, 'UTF-8') ?></p>
-        <?php else: ?>
-            <div class="faq-list" role="list">
-                <?php foreach ($faqs as $faq):
-                    $q = $lang === 'en' ? ($faq['question_en'] ?? $faq['question_fr']) : $faq['question_fr'];
-                    $a = $lang === 'en' ? ($faq['answer_en']   ?? $faq['answer_fr'])   : $faq['answer_fr'];
-                    $bid = 'faq-btn-' . (int)$faq['faq_id'];
-                    $cid = 'faq-ans-' . (int)$faq['faq_id'];
-                ?>
-                <div class="faq-item" role="listitem">
-                    <button class="faq-question"
-                            id="<?= $bid ?>"
-                            aria-expanded="false"
-                            aria-controls="<?= $cid ?>"
-                            type="button">
-                        <span><?= htmlspecialchars($q, ENT_QUOTES, 'UTF-8') ?></span>
-                        <span class="faq-icon" aria-hidden="true">+</span>
-                    </button>
-                    <div class="faq-answer"
-                         id="<?= $cid ?>"
-                         role="region"
-                         aria-labelledby="<?= $bid ?>"
-                         hidden>
-                        <p><?= $a /* admin-managed HTML */ ?></p>
+    <div class="info-page-container">
+        <section class="faq-section" aria-label="<?= $lang === 'en' ? 'Frequently asked questions' : 'Questions fréquentes' ?>">
+            <?php if (empty($faqs)): ?>
+                <p class="faq-empty"><?= htmlspecialchars($t['no_faq'], ENT_QUOTES, 'UTF-8') ?></p>
+            <?php else: ?>
+                <div class="faq-list" role="list">
+                    <?php foreach ($faqs as $faq):
+                        $q = $lang === 'en' ? ($faq['question_en'] ?? $faq['question_fr']) : $faq['question_fr'];
+                        $a = $lang === 'en' ? ($faq['answer_en']   ?? $faq['answer_fr'])   : $faq['answer_fr'];
+                        $bid = 'faq-btn-' . (int)$faq['faq_id'];
+                        $cid = 'faq-ans-' . (int)$faq['faq_id'];
+                    ?>
+                    <div class="faq-item" role="listitem">
+                        <button class="faq-question"
+                                id="<?= $bid ?>"
+                                aria-expanded="false"
+                                aria-controls="<?= $cid ?>"
+                                type="button">
+                            <span><?= htmlspecialchars($q, ENT_QUOTES, 'UTF-8') ?></span>
+                            <span class="faq-icon" aria-hidden="true">+</span>
+                        </button>
+                        <div class="faq-answer"
+                            id="<?= $cid ?>"
+                            role="region"
+                            aria-labelledby="<?= $bid ?>"
+                            hidden>
+                            <p><?= $a /* admin-managed HTML */ ?></p>
+                        </div>
                     </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-    </section>
+            <?php endif; ?>
+        </section>
 
-    <section class="info-page-cta" aria-label="<?= $lang === 'en' ? 'Need more help' : 'Besoin d\'aide' ?>">
-        <p><?= htmlspecialchars($t['cta'], ENT_QUOTES, 'UTF-8') ?></p>
-        <a href="contact" class="btn-dashboard" style="width:auto;display:inline-block;padding:0.8rem 2.5rem;">
-            <?= htmlspecialchars($t['contact'], ENT_QUOTES, 'UTF-8') ?>
-        </a>
-    </section>
-</div>
+        <section class="info-page-cta" aria-label="<?= $lang === 'en' ? 'Need more help' : 'Besoin d\'aide' ?>">
+            <p><?= htmlspecialchars($t['cta'], ENT_QUOTES, 'UTF-8') ?></p>
+            <a href="contact" class="btn-dashboard" style="width:auto;display:inline-block;padding:0.8rem 2.5rem;">
+                <?= htmlspecialchars($t['contact'], ENT_QUOTES, 'UTF-8') ?>
+            </a>
+        </section>
+    </div>
 </main>
 
 <script>

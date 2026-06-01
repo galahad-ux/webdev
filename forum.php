@@ -116,115 +116,115 @@ include 'header.php';
 ?>
 
 <main id="main-content">
-<div class="forum-container">
-    <div class="forum-page-header">
-        <div>
-            <h1><?= htmlspecialchars($t['title'], ENT_QUOTES, 'UTF-8') ?></h1>
-            <p class="forum-subtitle"><?= htmlspecialchars($t['subtitle'], ENT_QUOTES, 'UTF-8') ?></p>
-        </div>
-        <?php if ($user_id): ?>
-            <a href="forum?new=1" class="btn-dashboard" style="width:auto;padding:0.8rem 1.8rem;"
-               aria-label="<?= htmlspecialchars($t['new_thread'], ENT_QUOTES, 'UTF-8') ?>">
-                + <?= htmlspecialchars($t['new_thread'], ENT_QUOTES, 'UTF-8') ?>
-            </a>
-        <?php else: ?>
-            <a href="auth" class="btn-dashboard" style="width:auto;padding:0.8rem 1.8rem;background:#666;">
-                <?= htmlspecialchars($t['login_to_post'], ENT_QUOTES, 'UTF-8') ?>
-            </a>
-        <?php endif; ?>
-    </div>
-
-    <?php if ($error):   ?><div class="forum-alert forum-alert-error"   role="alert"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
-
-    <?php if ($show_form && $user_id): ?>
-    <section class="forum-compose-panel" aria-labelledby="new-thread-title">
-        <h2 id="new-thread-title"><?= htmlspecialchars($t['new_thread'], ENT_QUOTES, 'UTF-8') ?></h2>
-        <form method="POST" action="forum">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
-            <input type="hidden" name="action" value="create_thread">
-
-            <div class="forum-form-group">
-                <label for="thread-title"><?= htmlspecialchars($t['thread_title_label'], ENT_QUOTES, 'UTF-8') ?> *</label>
-                <input type="text" id="thread-title" name="title"
-                       minlength="3" maxlength="200" required
-                       aria-required="true"
-                       value="<?= htmlspecialchars($_POST['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                       placeholder="<?= $lang === 'en' ? 'Enter a clear, descriptive title…' : 'Saisissez un titre clair et descriptif…' ?>">
-            </div>
-
-            <div class="forum-form-group">
-                <label for="thread-content"><?= htmlspecialchars($t['thread_content_label'], ENT_QUOTES, 'UTF-8') ?> *</label>
-                <textarea id="thread-content" name="content"
-                          rows="8" required minlength="10"
-                          aria-required="true"
-                          placeholder="<?= $lang === 'en' ? 'Share your question, experience or advice…' : 'Partagez votre question, expérience ou conseil…' ?>"><?= htmlspecialchars($_POST['content'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
-            </div>
-
-            <div style="display:flex;gap:1rem;">
-                <button type="submit" class="btn-dashboard" style="width:auto;padding:0.8rem 2rem;">
-                    <?= htmlspecialchars($t['submit'], ENT_QUOTES, 'UTF-8') ?>
-                </button>
-                <a href="forum" class="btn-dashboard" style="width:auto;padding:0.8rem 2rem;background:#666;">
-                    <?= htmlspecialchars($t['cancel'], ENT_QUOTES, 'UTF-8') ?>
+    <section class="hero" style="padding: 4rem 2%;">
+        <h1><?= htmlspecialchars($t['title'], ENT_QUOTES, 'UTF-8') ?></h1>
+        <p class="hero-subtitle"><?= htmlspecialchars($t['subtitle'], ENT_QUOTES, 'UTF-8') ?></p>
+    </section>
+    <div class="forum-container">
+        <div class="forum-page-header">
+            <?php if ($user_id): ?>
+                <a href="forum?new=1" class="btn-dashboard" style="width:auto;padding:0.8rem 1.8rem;"
+                aria-label="<?= htmlspecialchars($t['new_thread'], ENT_QUOTES, 'UTF-8') ?>">
+                    + <?= htmlspecialchars($t['new_thread'], ENT_QUOTES, 'UTF-8') ?>
                 </a>
-            </div>
-        </form>
-    </section>
-    <?php endif; ?>
-
-    <section aria-labelledby="thread-list-heading">
-        <h2 id="thread-list-heading" class="sr-only"><?= $lang === 'en' ? 'Topics' : 'Sujets' ?></h2>
-
-        <?php if (empty($threads)): ?>
-            <p class="forum-empty"><?= htmlspecialchars($t['no_threads'], ENT_QUOTES, 'UTF-8') ?></p>
-        <?php else: ?>
-            <div class="thread-list" role="list">
-            <?php foreach ($threads as $thread): ?>
-                <article class="thread-item <?= $thread['is_pinned'] ? 'thread-pinned' : '' ?> <?= $thread['is_closed'] ? 'thread-closed' : '' ?>"
-                         role="listitem">
-                    <div class="thread-badges">
-                        <?php if ($thread['is_pinned']): ?>
-                            <span class="badge badge-pinned" aria-label="<?= $t['pinned'] ?>">📌 <?= htmlspecialchars($t['pinned'], ENT_QUOTES, 'UTF-8') ?></span>
-                        <?php endif; ?>
-                        <?php if ($thread['is_closed']): ?>
-                            <span class="badge badge-inactive" aria-label="<?= $t['closed'] ?>">🔒 <?= htmlspecialchars($t['closed'], ENT_QUOTES, 'UTF-8') ?></span>
-                        <?php endif; ?>
-                    </div>
-                    <h3 class="thread-title">
-                        <a href="forum_thread?id=<?= (int)$thread['thread_id'] ?>">
-                            <?= htmlspecialchars($thread['title'], ENT_QUOTES, 'UTF-8') ?>
-                        </a>
-                    </h3>
-                    <div class="thread-meta">
-                        <span><?= htmlspecialchars($t['by'], ENT_QUOTES, 'UTF-8') ?> <strong><?= htmlspecialchars($thread['author_name'], ENT_QUOTES, 'UTF-8') ?></strong></span>
-                        <span>·</span>
-                        <time datetime="<?= htmlspecialchars($thread['created_at'], ENT_QUOTES, 'UTF-8') ?>">
-                            <?= htmlspecialchars(date($lang === 'en' ? 'M j, Y' : 'd/m/Y', strtotime($thread['created_at'])), ENT_QUOTES, 'UTF-8') ?>
-                        </time>
-                        <span>·</span>
-                        <span><?= (int)$thread['reply_count'] ?> <?= htmlspecialchars($t['replies'], ENT_QUOTES, 'UTF-8') ?></span>
-                    </div>
-                    <p class="thread-excerpt">
-                        <?= htmlspecialchars(mb_strimwidth($thread['content'], 0, 160, '…'), ENT_QUOTES, 'UTF-8') ?>
-                    </p>
-                </article>
-            <?php endforeach; ?>
-            </div>
-
-            <?php if ($totalPages > 1): ?>
-            <nav class="forum-pagination" aria-label="Pagination">
-                <?php for ($p = 1; $p <= $totalPages; $p++): ?>
-                    <a href="?page=<?= $p ?>"
-                       class="<?= $p === $page ? 'active' : '' ?>"
-                       <?= $p === $page ? 'aria-current="page"' : '' ?>>
-                        <?= $p ?>
-                    </a>
-                <?php endfor; ?>
-            </nav>
+            <?php else: ?>
+                <a href="auth" class="btn-dashboard" style="width:auto;padding:0.8rem 1.8rem;background:#666;">
+                    <?= htmlspecialchars($t['login_to_post'], ENT_QUOTES, 'UTF-8') ?>
+                </a>
             <?php endif; ?>
+        </div>
+
+        <?php if ($error):   ?><div class="forum-alert forum-alert-error"   role="alert"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
+
+        <?php if ($show_form && $user_id): ?>
+        <section class="forum-compose-panel" aria-labelledby="new-thread-title">
+            <h2 id="new-thread-title"><?= htmlspecialchars($t['new_thread'], ENT_QUOTES, 'UTF-8') ?></h2>
+            <form method="POST" action="forum">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
+                <input type="hidden" name="action" value="create_thread">
+
+                <div class="forum-form-group">
+                    <label for="thread-title"><?= htmlspecialchars($t['thread_title_label'], ENT_QUOTES, 'UTF-8') ?> *</label>
+                    <input type="text" id="thread-title" name="title"
+                        minlength="3" maxlength="200" required
+                        aria-required="true"
+                        value="<?= htmlspecialchars($_POST['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                        placeholder="<?= $lang === 'en' ? 'Enter a clear, descriptive title…' : 'Saisissez un titre clair et descriptif…' ?>">
+                </div>
+
+                <div class="forum-form-group">
+                    <label for="thread-content"><?= htmlspecialchars($t['thread_content_label'], ENT_QUOTES, 'UTF-8') ?> *</label>
+                    <textarea id="thread-content" name="content"
+                            rows="8" required minlength="10"
+                            aria-required="true"
+                            placeholder="<?= $lang === 'en' ? 'Share your question, experience or advice…' : 'Partagez votre question, expérience ou conseil…' ?>"><?= htmlspecialchars($_POST['content'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                </div>
+
+                <div style="display:flex;gap:1rem;">
+                    <button type="submit" class="btn-dashboard" style="width:auto;padding:0.8rem 2rem;">
+                        <?= htmlspecialchars($t['submit'], ENT_QUOTES, 'UTF-8') ?>
+                    </button>
+                    <a href="forum" class="btn-dashboard" style="width:auto;padding:0.8rem 2rem;background:#666;">
+                        <?= htmlspecialchars($t['cancel'], ENT_QUOTES, 'UTF-8') ?>
+                    </a>
+                </div>
+            </form>
+        </section>
         <?php endif; ?>
-    </section>
-</div>
+
+        <section aria-labelledby="thread-list-heading">
+            <h2 id="thread-list-heading" class="sr-only"><?= $lang === 'en' ? 'Topics' : 'Sujets' ?></h2>
+
+            <?php if (empty($threads)): ?>
+                <p class="forum-empty"><?= htmlspecialchars($t['no_threads'], ENT_QUOTES, 'UTF-8') ?></p>
+            <?php else: ?>
+                <div class="thread-list" role="list">
+                <?php foreach ($threads as $thread): ?>
+                    <article class="thread-item <?= $thread['is_pinned'] ? 'thread-pinned' : '' ?> <?= $thread['is_closed'] ? 'thread-closed' : '' ?>"
+                            role="listitem">
+                        <div class="thread-badges">
+                            <?php if ($thread['is_pinned']): ?>
+                                <span class="badge badge-pinned" aria-label="<?= $t['pinned'] ?>">📌 <?= htmlspecialchars($t['pinned'], ENT_QUOTES, 'UTF-8') ?></span>
+                            <?php endif; ?>
+                            <?php if ($thread['is_closed']): ?>
+                                <span class="badge badge-inactive" aria-label="<?= $t['closed'] ?>">🔒 <?= htmlspecialchars($t['closed'], ENT_QUOTES, 'UTF-8') ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <h3 class="thread-title">
+                            <a href="forum_thread?id=<?= (int)$thread['thread_id'] ?>">
+                                <?= htmlspecialchars($thread['title'], ENT_QUOTES, 'UTF-8') ?>
+                            </a>
+                        </h3>
+                        <div class="thread-meta">
+                            <span><?= htmlspecialchars($t['by'], ENT_QUOTES, 'UTF-8') ?> <strong><?= htmlspecialchars($thread['author_name'], ENT_QUOTES, 'UTF-8') ?></strong></span>
+                            <span>·</span>
+                            <time datetime="<?= htmlspecialchars($thread['created_at'], ENT_QUOTES, 'UTF-8') ?>">
+                                <?= htmlspecialchars(date($lang === 'en' ? 'M j, Y' : 'd/m/Y', strtotime($thread['created_at'])), ENT_QUOTES, 'UTF-8') ?>
+                            </time>
+                            <span>·</span>
+                            <span><?= (int)$thread['reply_count'] ?> <?= htmlspecialchars($t['replies'], ENT_QUOTES, 'UTF-8') ?></span>
+                        </div>
+                        <p class="thread-excerpt">
+                            <?= htmlspecialchars(mb_strimwidth($thread['content'], 0, 160, '…'), ENT_QUOTES, 'UTF-8') ?>
+                        </p>
+                    </article>
+                <?php endforeach; ?>
+                </div>
+
+                <?php if ($totalPages > 1): ?>
+                <nav class="forum-pagination" aria-label="Pagination">
+                    <?php for ($p = 1; $p <= $totalPages; $p++): ?>
+                        <a href="?page=<?= $p ?>"
+                        class="<?= $p === $page ? 'active' : '' ?>"
+                        <?= $p === $page ? 'aria-current="page"' : '' ?>>
+                            <?= $p ?>
+                        </a>
+                    <?php endfor; ?>
+                </nav>
+                <?php endif; ?>
+            <?php endif; ?>
+        </section>
+    </div>
 </main>
 
 <?php include 'footer.php'; ?>

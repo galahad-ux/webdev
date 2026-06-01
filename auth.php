@@ -8,6 +8,8 @@ session_start();
 
 require_once __DIR__ . '/../config/db_connect.php';
 require_once __DIR__ . '/../vendor/autoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 $client = new Google_Client();
 $client->setClientId(GOOGLE_ID);
@@ -228,19 +230,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($user) {
             $token = bin2hex(random_bytes(32));
-            $expires = date('Y-m-d H:i:s', time() + 3600); // Jeton valide 1 heure
-            
+            $expires = gmdate('Y-m-d H:i:s', time() + 3600);
+
             $stmt = $pdo->prepare("UPDATE user SET reset_token = ?, reset_expires = ? WHERE email = ?");
             $stmt->execute([$token, $expires, $email]);
 
-            // ⚠️ SIMULATION DE L'E-MAIL (À remplacer par PHPMailer en production)
-            $reset_link = "http://" . $_SERVER['HTTP_HOST'] . explode('?', $_SERVER['REQUEST_URI'])[0] . "?token=" . $token;
-            // mail($email, "Réinitialisation", "Lien : " . $reset_link);
-            
-            // Pour tester sans serveur mail, on affiche le lien dans le message d'erreur
-            $error_message = "Lien envoyé (SIMULATION DEV) : <a href='$reset_link'>Cliquez ici</a>";
+            $reset_link = "https://" . $_SERVER['HTTP_HOST'] . "/auth.php?token=" . $token;
+
+            $mail = new PHPMailer(true);
+            try {
+                $mail->isSMTP();
+                $mail->Host       = SMTP_HOST;
+                $mail->SMTPAuth   = true;
+                $mail->Username   = SMTP_USER;
+                $mail->Password   = SMTP_PASS;
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port       = SMTP_PORT;
+                $mail->CharSet    = 'UTF-8';
+
+                $mail->setFrom(SMTP_FROM, SMTP_FROM_NAME);
+                $mail->addAddress($email);
+                $mail->Subject = 'Réinitialisation de votre mot de passe — Momo Travel';
+                $mail->isHTML(true);
+                $mail->Body = "
+                    <p>Bonjour,</p>
+                    <p>Vous avez demandé à réinitialiser votre mot de passe.</p>
+                    <p><a href='" . htmlspecialchars($reset_link, ENT_QUOTES, 'UTF-8') . "' style='background:#c1272d;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;'>Réinitialiser mon mot de passe</a></p>
+                    <p>Ce lien expire dans <strong>1 heure</strong>. Si vous n'avez pas fait cette demande, ignorez cet e-mail.</p>
+                    <p>L'équipe Momo Travel</p>
+                ";
+                $mail->AltBody = "Réinitialisez votre mot de passe : " . $reset_link . " (lien valide 1 heure)";
+                $mail->send();
+                $error_message = "Un e-mail de réinitialisation vous a été envoyé.";
+            } catch (Exception $e) {
+                error_log("[" . date('Y-m-d H:i:s') . "] PHPMailer reset error: " . $mail->ErrorInfo . "\n", 3, __DIR__ . '/../config/errors.log');
+                $error_message = "Erreur lors de l'envoi de l'e-mail. Veuillez réessayer.";
+            }
         } else {
-            // Message générique pour des raisons de sécurité (ne pas révéler si l'e-mail existe ou non)
             $error_message = "Si cette adresse existe, un e-mail a été envoyé.";
         }
         $step = 1;
@@ -300,6 +326,7 @@ include 'header.php';
         <?php if (!empty($error_message)): ?>
             <div style="background-color: #fee; color: #c1272d; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-weight: 500; font-size: 0.95rem; text-align: left;">
                 <?= htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8') ?>
+                <?php if (!empty($reset_link_html)): ?><?= $reset_link_html ?><?php endif; ?>
             </div>
         <?php endif; ?>
 
@@ -395,14 +422,15 @@ include 'header.php';
                 <p>Saisissez votre e-mail pour recevoir un lien de réinitialisation.</p>
             </div>
             
-            <form class="contact-form" method="POST" action="auth2.php">
+            <form class="contact-form" method="POST" action="auth.php" onsubmit="document.getElementById('btn-submit').disabled=true;">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="forgot_submit" value="1">
                 <input type="email" name="email" placeholder="Votre adresse e-mail" required value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>" autofocus style="width: 100%;">
-                
-                <button type="submit" name="forgot_submit" id="btn-submit" style="width: 100%;">Envoyer le lien</button>
+
+                <button type="submit" id="btn-submit" style="width: 100%;">Envoyer le lien</button>
             </form>
             <div style="text-align: center; margin-top: 15px;">
-                <a href="auth2.php" style="color: #555; text-decoration: underline; font-size: 0.9rem;">Retour à la connexion</a>
+                <a href="auth.php" style="color: #555; text-decoration: underline; font-size: 0.9rem;">Retour à la connexion</a>
             </div>
 
         <?php elseif ($step === 5): ?>
@@ -411,18 +439,18 @@ include 'header.php';
                 <p>Créez un nouveau mot de passe sécurisé.</p>
             </div>
             
-            <form class="contact-form" method="POST" action="auth2.php">
+            <form class="contact-form" method="POST" action="auth.php">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="token" value="<?= htmlspecialchars($_GET['token'] ?? $_POST['token'], ENT_QUOTES, 'UTF-8') ?>">
                 
                 <div style="position: relative; width: 100%; margin-bottom: 1rem;">
-                    <input type="password" name="new_password" id="reset_pwd" placeholder="Nouveau mot de passe (8 car., 1 Maj., 1 chiffre)" required autofocus style="width: 100%; padding-right: 40px; margin-bottom: 0;">
-                    <button type="button" onclick="togglePwd('reset_pwd')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0; outline: none;">👁️</button>
+                    <input type="password" name="new_password" id="reset_pwd" placeholder="Nouveau mot de passe (8 car., 1 Maj., 1 chiffre)" required autofocus style="width: 100%; box-sizing: border-box; padding-right: 40px; margin-bottom: 0;">
+                    <span onclick="togglePwd('reset_pwd')" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.2rem; user-select: none;">👁️</span>
                 </div>
 
                 <div style="position: relative; width: 100%; margin-bottom: 1rem;">
-                    <input type="password" name="new_password_confirm" id="reset_pwd_conf" placeholder="Confirmez le mot de passe" required style="width: 100%; padding-right: 40px; margin-bottom: 0;">
-                    <button type="button" onclick="togglePwd('reset_pwd_conf')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0; outline: none;">👁️</button>
+                    <input type="password" name="new_password_confirm" id="reset_pwd_conf" placeholder="Confirmez le mot de passe" required style="width: 100%; box-sizing: border-box; padding-right: 40px; margin-bottom: 0;">
+                    <span onclick="togglePwd('reset_pwd_conf')" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.2rem; user-select: none;">👁️</span>
                 </div>
                 
                 <button type="submit" name="reset_submit" id="btn-submit" style="width: 100%;">Enregistrer et se connecter</button>

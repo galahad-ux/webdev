@@ -227,16 +227,18 @@ include 'header.php';
     }
 </style>
 
+<section class="hero" style="padding: 4rem 2%;">
+        <h1 style="font-family:'Playfair Display',serif; font-size:2rem; margin-bottom: 0.5rem;">
+            <?= htmlspecialchars($package['name'], ENT_QUOTES, 'UTF-8') ?>
+        </h1>
+</section>
+
 <div class="trip-detail-container">
     <a href="book" style="color: #c1272d; font-size: 0.95rem; text-decoration: none; display: inline-block; margin-bottom: 1.5rem;"><?= $t['back'] ?></a>
 
     <img src="<?= htmlspecialchars($package['image_url'] ?? 'images/destinations/default.webp', ENT_QUOTES, 'UTF-8') ?>"
          alt="<?= htmlspecialchars($package['name'], ENT_QUOTES, 'UTF-8') ?>"
          class="trip-hero-img">
-
-    <h1 style="font-family:'Playfair Display',serif; font-size:2rem; margin-bottom: 0.5rem;">
-        <?= htmlspecialchars($package['name'], ENT_QUOTES, 'UTF-8') ?>
-    </h1>
 
     <div class="trip-meta">
         <?php if ($package['city_name']): ?>

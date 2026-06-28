@@ -1,0 +1,45 @@
+# ==========================================
+# 1. OPTIMISATION : Mise en cache
+# ==========================================
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # Images en cache pour 1 mois
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    
+    # CSS en cache pour 1 mois
+    ExpiresByType text/css "access plus 1 month"
+</IfModule>
+
+# ==========================================
+# 2. ROUTAGE : Réécriture des URL (sans .php)
+# ==========================================
+<IfModule mod_rewrite.c>
+    # On active la réécriture d'URL
+    RewriteEngine On
+    
+    # Si le fichier cherché n'existe pas physiquement (ex: /blog n'est pas un dossier)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Alors on ajoute silencieusement .php à la fin
+    RewriteRule ^([^\.]+)$ $1.php [NC,L]
+</IfModule>
+
+# ==========================================
+# 3. SÉCURITÉ : Protection des fichiers sensibles (Apache 2.4)
+# ==========================================
+
+# Bloquer l'accès direct au fichier de base de données
+<Files "db_connect.php">
+    Require all denied
+</Files>
+
+# Bloquer l'accès à tous les fichiers d'environnement (.env, .env.local, etc.)
+<FilesMatch "^\.env">
+    Require all denied
+</FilesMatch>

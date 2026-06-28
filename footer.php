@@ -1,32 +1,49 @@
+<?php
+$_fl = $_SESSION['language'] ?? 'fr';
+$_ft = [
+    'fr' => [
+        'about'   => 'À propos', 'careers' => 'Carrières', 'press'    => 'Presse',
+        'support' => 'Support',  'contact' => 'Nous contacter',
+        'legal'   => 'Légal',    'terms'   => 'CGU', 'legal_notice' => 'Mentions légales',
+        'help'    => 'Centre d\'aide', 'rights' => 'Tous droits réservés.',
+    ],
+    'en' => [
+        'about'   => 'About Us', 'careers' => 'Careers', 'press'    => 'Press',
+        'support' => 'Support',  'contact' => 'Contact Us',
+        'legal'   => 'Legal',    'terms'   => 'Terms of Service', 'legal_notice' => 'Legal Notice',
+        'help'    => 'Help Center', 'rights' => 'All rights reserved.',
+    ],
+][$_fl];
+?>
         <footer>
             <div class="footer-content">
                 <div class="footer-col">
                     <h4>Momo Travel</h4>
                     <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Press</a></li>
+                        <li><a href="#"><?= $_ft['about'] ?></a></li>
+                        <li><a href="#"><?= $_ft['careers'] ?></a></li>
+                        <li><a href="#"><?= $_ft['press'] ?></a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Support</h4>
+                    <h4><?= $_ft['support'] ?></h4>
                     <ul>
-                        <li><a href="contact">Contact Us</a></li>
-                        <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Cancellations and Refunds</a></li>
+                        <li><a href="contact"><?= $_ft['contact'] ?></a></li>
+                        <li><a href="faq">FAQ</a></li>
+                        <li><a href="forum">Forum</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Legal</h4>
+                    <h4><?= $_ft['legal'] ?></h4>
                     <ul>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Legal Notice</a></li>
+                        <li><a href="cgu"><?= $_ft['terms'] ?></a></li>
+                        <li><a href="mentions"><?= $_ft['legal_notice'] ?></a></li>
+                        <li><a href="faq"><?= $_ft['help'] ?></a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 Momo Travel. All rights reserved.</p>
+                <p>&copy; 2026 Momo Travel. <?= $_ft['rights'] ?></p>
             </div>
         </footer>
         <script>
@@ -35,33 +52,25 @@
                 const acceptBtn = document.getElementById("accept-cookies");
                 const declineBtn = document.getElementById("decline-cookies");
 
-                // 1. On vérifie si l'utilisateur a déjà fait un choix précédemment
                 const cookieConsent = localStorage.getItem("momo_cookie_consent");
 
-                if (!cookieConsent) {
-                    // 2. Si aucun choix n'a été fait, on affiche la bannière avec une petite animation
-                    setTimeout(() => {
-                        cookieBanner.classList.add("show");
-                    }, 1000); // Apparaît après 1 seconde
+                if (!cookieConsent && cookieBanner) {
+                    setTimeout(() => { cookieBanner.classList.add("show"); }, 1000);
                 }
 
-                // 3. Action si l'utilisateur accepte
-                acceptBtn.addEventListener("click", function() {
-                    localStorage.setItem("momo_cookie_consent", "accepted");
-                    cookieBanner.classList.remove("show");
-                    
-                    // C'est ici que tu activerais tes trackers (ex: Google Analytics)
-                    console.log("Cookies acceptés ! Lancement des scripts de suivi.");
-                });
+                if (acceptBtn) {
+                    acceptBtn.addEventListener("click", function() {
+                        localStorage.setItem("momo_cookie_consent", "accepted");
+                        cookieBanner.classList.remove("show");
+                    });
+                }
 
-                // 4. Action si l'utilisateur refuse
-                declineBtn.addEventListener("click", function() {
-                    localStorage.setItem("momo_cookie_consent", "declined");
-                    cookieBanner.classList.remove("show");
-                    
-                    // Ici on ne fait rien, on respecte son choix
-                    console.log("Cookies refusés.");
-                });
+                if (declineBtn) {
+                    declineBtn.addEventListener("click", function() {
+                        localStorage.setItem("momo_cookie_consent", "declined");
+                        cookieBanner.classList.remove("show");
+                    });
+                }
             });
         </script>
     </body>

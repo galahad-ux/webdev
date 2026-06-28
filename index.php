@@ -30,7 +30,6 @@ $reviews = $reviewQuery->fetchAll();
 
 $page_title = 'Momo - Book your next journey'; 
 
-// Petite logique de traduction pour le bouton
 $explore_text = ($lang == 'fr') ? "Explorer les séjours" : "Explore stays";
 $our_dest_text = ($lang == 'fr') ? "Nos destinations" : "Our destinations";
 // =========================================================================
@@ -46,6 +45,7 @@ $translations = [
         'search_btn' => "Rechercher",
         'reviews_subtitle' => "Parcourez les avis de nos clients",
         'reviews_title' => "Avis",
+        'city_placeholder' => "Ville, hôtel, quartier..."
     ],
     'en' => [
         'hero_title' => "Book your next journey",
@@ -53,6 +53,7 @@ $translations = [
         'search_btn' => "Search",
         'reviews_subtitle' => "Browse through our clients’ feedback",
         'reviews_title' => "Reviews",
+        'city_placeholder' => "City, hotel, neighborhood...",
     ]
 ];
 $t = $translations[$lang];
@@ -65,7 +66,7 @@ include 'header.php';
     <p><?= $translations[$lang]['hero_subtitle'] ?></p>
     
     <form action="book" method="GET" class="search-bar">
-        <input type="text" name="city" placeholder="City, hotel, neighborhood...">
+        <input type="text" name="city" placeholder="<?= $translations[$lang]['city_placeholder'] ?>">
         <!-- <input type="date" name="date" style="border-left: 1px solid #ddd; flex-grow: 0.5;"> -->
         <button type="submit"><?= $translations[$lang]['search_btn'] ?></button>
     </form>
@@ -78,19 +79,15 @@ include 'header.php';
     <div class="grid">
         <?php foreach($destinations as $dest): ?>
             <article class="card">
-                <img src="<?= htmlspecialchars($dest['image_url'] ?? 'images/destinations/default.webp', ENT_QUOTES, 'UTF-8') ?>" 
-                     alt="<?= htmlspecialchars($dest['name'], ENT_QUOTES, 'UTF-8') ?>" 
-                     fetchpriority="high">
-                
-                <div class="card-content">
-                    <h3><?= htmlspecialchars($dest['name'], ENT_QUOTES, 'UTF-8') ?></h3>
-                    <p><?= htmlspecialchars($dest['slogan'] ?? '', ENT_QUOTES, 'UTF-8') ?></p>
-                    <p style="margin-top: 10px;">
-                        <a href="book?city=<?= urlencode($dest['name']) ?>" class="read-more" style="font-size: 0.9rem;">
-                            <?= $explore_text ?> &rarr;
-                        </a>
-                    </p>
-                </div>
+                <a href="book?city=<?= urlencode($dest['name']) ?>" class="polaroid-wrapper">
+                    <img src="<?= htmlspecialchars($dest['image_url'] ?? 'images/destinations/default.webp', ENT_QUOTES, 'UTF-8') ?>" 
+                        alt="<?= htmlspecialchars($dest['name'], ENT_QUOTES, 'UTF-8') ?>">
+                    
+                    <div class="card-content">
+                        <h3><?= htmlspecialchars($dest['name'], ENT_QUOTES, 'UTF-8') ?></h3>
+                        <p><?= htmlspecialchars($dest['slogan'] ?? '', ENT_QUOTES, 'UTF-8') ?></p>
+                    </div>
+                </a>
             </article>
         <?php endforeach; ?>
     </div>
@@ -102,11 +99,12 @@ include 'header.php';
     <div class="reviews-grid">
         <?php foreach($reviews as $rev): ?>
             <article class="review-card">
+                <h3>“<?= htmlspecialchars($rev['title'], ENT_QUOTES, 'UTF-8') ?>”</h3>
+                <p class="review-text"><?= htmlspecialchars($rev['comment'], ENT_QUOTES, 'UTF-8') ?></p>
+                <BR>
                 <div class="user-info">
                     <span class="username"><?= htmlspecialchars($rev['username'], ENT_QUOTES, 'UTF-8') ?></span>
                 </div>
-                <h3>“<?= htmlspecialchars($rev['title'], ENT_QUOTES, 'UTF-8') ?>”</h3>
-                <p class="review-text"><?= htmlspecialchars($rev['comment'], ENT_QUOTES, 'UTF-8') ?></p>
             </article>
         <?php endforeach; ?>
     </div>
